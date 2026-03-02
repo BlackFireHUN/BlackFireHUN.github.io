@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Karbantartás alatt</title>
+    <style>
+        :root {
+            --color-bg-primary: #000000;
+            --color-text-primary: #ffffff;
+            --color-text-secondary: #a0a0a0;
+            --color-accent: #38bdf8;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--color-bg-primary);
+            color: var(--color-text-primary);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .particles {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .particle {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: var(--color-accent);
+            border-radius: 50%;
+            opacity: 0.3;
+            animation: float linear infinite;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(100vh) translateX(0);
+                opacity: 0;
+            }
+            10% {
+                opacity: 0.3;
+            }
+            90% {
+                opacity: 0.3;
+            }
+            100% {
+                transform: translateY(-100px) translateX(100px);
+                opacity: 0;
+            }
+        }
+
+        .container {
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+            z-index: 2;
+            position: relative;
+        }
+
+        .icon-container {
+            margin-bottom: 40px;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            50% {
+                transform: scale(1.05);
+                opacity: 0.8;
+            }
+        }
+
+        .icon {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto;
+        }
+
+        .icon svg {
+            width: 100%;
+            height: 100%;
+            stroke: var(--color-accent);
+            fill: none;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .gear {
+            animation: rotate 4s linear infinite;
+            transform-origin: center;
+        }
+
+        @keyframes rotate {
+            from {
+                transform: rotate(0deg);
+            }
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        h1 {
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            font-weight: 300;
+            margin-bottom: 20px;
+            letter-spacing: -0.02em;
+            line-height: 1.2;
+        }
+
+        .highlight {
+            color: var(--color-accent);
+            font-weight: 400;
+        }
+
+        p {
+            font-size: clamp(1rem, 2vw, 1.25rem);
+            color: var(--color-text-secondary);
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+        .status-line {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 24px;
+            background: rgba(56, 189, 248, 0.1);
+            border: 1px solid rgba(56, 189, 248, 0.3);
+            border-radius: 50px;
+            font-size: 0.9rem;
+            margin-top: 20px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--color-accent);
+            border-radius: 50%;
+            animation: blink 1.5s ease-in-out infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.3;
+            }
+        }
+
+        .footer {
+            margin-top: 60px;
+            font-size: 0.875rem;
+            color: var(--color-text-secondary);
+        }
+
+        @media (max-width: 768px) {
+            .icon {
+                width: 80px;
+                height: 80px;
+            }
+
+            .icon-container {
+                margin-bottom: 30px;
+            }
+
+            .status-line {
+                font-size: 0.8rem;
+                padding: 10px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="particles" id="particles"></div>
+
+    <div class="container">
+        <div class="icon-container">
+            <div class="icon">
+                <h1>WEE</h1>
+            </div>
+        </div>
+
+        <h1>Jelenleg <span class="highlight">karbantartás</span> alatt állunk</h1>
+        
+        <p>Az oldal átmenetileg nem érhető el, mert mi vagy az egyik szolgáltatónk éppen karbantartást végez.</p>
+
+        <div class="status-line">
+            <span class="status-dot"></span>
+            <span>Hamarosan visszatérünk</span>
+        </div>
+
+        <div class="footer">
+            Köszönjük a türelmedet
+        </div>
+    </div>
+
+    <script>
+        function createParticles() {
+            const container = document.getElementById('particles');
+            const particleCount = 30;
+
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                
+                const startX = Math.random() * 100;
+                const delay = Math.random() * 8;
+                const duration = 8 + Math.random() * 8;
+                
+                particle.style.left = startX + '%';
+                particle.style.animationDelay = delay + 's';
+                particle.style.animationDuration = duration + 's';
+                
+                container.appendChild(particle);
+            }
+        }
+
+        createParticles();
+    </script>
+</body>
+</html>
