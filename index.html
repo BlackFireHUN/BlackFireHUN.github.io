@@ -1,245 +1,194 @@
 <!DOCTYPE html>
 <html lang="hu">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Karbantartás alatt</title>
-    <style>
-        :root {
-            --color-bg-primary: #000000;
-            --color-text-primary: #ffffff;
-            --color-text-secondary: #a0a0a0;
-            --color-accent: #38bdf8;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Átirányítás folyamatban...</title>
+  <style>
+    :root {
+      --color-background: #0a0a0a;
+      --color-surface: #1a1a1a;
+      --color-text-primary: #ffffff;
+      --color-text-secondary: #a0a0a0;
+      --color-primary: #38bdf8;
+      --color-primary-hover: #0ea5e9;
+      --color-border: rgba(255, 255, 255, 0.1);
+    }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: var(--color-bg-primary);
-            color: var(--color-text-primary);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-            overflow: hidden;
-            position: relative;
-        }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: var(--color-background);
+      color: var(--color-text-primary);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+      -webkit-font-smoothing: antialiased;
+    }
 
-        .particles {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            z-index: 1;
-        }
+    .container {
+      max-width: 520px;
+      width: 100%;
+      text-align: center;
+    }
 
-        .particle {
-            position: absolute;
-            width: 2px;
-            height: 2px;
-            background: var(--color-accent);
-            border-radius: 50%;
-            opacity: 0.3;
-            animation: float linear infinite;
-        }
+    .icon-wrapper {
+      margin-bottom: 2rem;
+      animation: pulse 2s ease-in-out infinite;
+    }
 
-        @keyframes float {
-            0% {
-                transform: translateY(100vh) translateX(0);
-                opacity: 0;
-            }
-            10% {
-                opacity: 0.3;
-            }
-            90% {
-                opacity: 0.3;
-            }
-            100% {
-                transform: translateY(-100px) translateX(100px);
-                opacity: 0;
-            }
-        }
+    .icon {
+      width: 64px;
+      height: 64px;
+      margin: 0 auto;
+      background: var(--color-surface);
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid var(--color-border);
+    }
 
-        .container {
-            max-width: 600px;
-            width: 100%;
-            text-align: center;
-            z-index: 2;
-            position: relative;
-        }
+    .icon svg {
+      width: 32px;
+      height: 32px;
+      color: var(--color-primary);
+    }
 
-        .icon-container {
-            margin-bottom: 40px;
-            animation: pulse 2s ease-in-out infinite;
-        }
+    h1 {
+      font-size: 2rem;
+      font-weight: 600;
+      margin-bottom: 0.75rem;
+      letter-spacing: -0.02em;
+    }
 
-        @keyframes pulse {
-            0%, 100% {
-                transform: scale(1);
-                opacity: 1;
-            }
-            50% {
-                transform: scale(1.05);
-                opacity: 0.8;
-            }
-        }
+    p {
+      font-size: 1rem;
+      line-height: 1.6;
+      color: var(--color-text-secondary);
+      margin-bottom: 2rem;
+    }
 
-        .icon {
-            width: 120px;
-            height: 120px;
-            margin: 0 auto;
-        }
+    .button {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.875rem 1.75rem;
+      font-size: 1rem;
+      font-weight: 500;
+      border-radius: 12px;
+      border: none;
+      cursor: pointer;
+      background: var(--color-primary);
+      color: #000;
+      transition: all 0.2s ease;
+      text-decoration: none;
+    }
 
-        .icon svg {
-            width: 100%;
-            height: 100%;
-            stroke: var(--color-accent);
-            fill: none;
-            stroke-width: 2;
-            stroke-linecap: round;
-            stroke-linejoin: round;
-        }
+    .button:hover {
+      background: var(--color-primary-hover);
+      transform: translateY(-1px);
+      box-shadow: 0 8px 24px rgba(56, 189, 248, 0.25);
+    }
 
-        .gear {
-            animation: rotate 4s linear infinite;
-            transform-origin: center;
-        }
+    .button:active {
+      transform: translateY(0);
+    }
 
-        @keyframes rotate {
-            from {
-                transform: rotate(0deg);
-            }
-            to {
-                transform: rotate(360deg);
-            }
-        }
+    .button svg {
+      width: 18px;
+      height: 18px;
+    }
 
-        h1 {
-            font-size: clamp(2rem, 5vw, 3.5rem);
-            font-weight: 300;
-            margin-bottom: 20px;
-            letter-spacing: -0.02em;
-            line-height: 1.2;
-        }
+    .status {
+      margin-top: 2.5rem;
+      padding: 1rem;
+      background: var(--color-surface);
+      border-radius: 12px;
+      border: 1px solid var(--color-border);
+      font-size: 0.875rem;
+      color: var(--color-text-secondary);
+    }
 
-        .highlight {
-            color: var(--color-accent);
-            font-weight: 400;
-        }
+    .spinner {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      border: 2px solid var(--color-border);
+      border-top-color: var(--color-primary);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin-right: 0.5rem;
+      vertical-align: middle;
+    }
 
-        p {
-            font-size: clamp(1rem, 2vw, 1.25rem);
-            color: var(--color-text-secondary);
-            margin-bottom: 30px;
-            line-height: 1.6;
-        }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
 
-        .status-line {
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            padding: 12px 24px;
-            background: rgba(56, 189, 248, 0.1);
-            border: 1px solid rgba(56, 189, 248, 0.3);
-            border-radius: 50px;
-            font-size: 0.9rem;
-            margin-top: 20px;
-        }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.6; }
+    }
 
-        .status-dot {
-            width: 8px;
-            height: 8px;
-            background: var(--color-accent);
-            border-radius: 50%;
-            animation: blink 1.5s ease-in-out infinite;
-        }
+    @media (max-width: 640px) {
+      h1 {
+        font-size: 1.5rem;
+      }
+      p {
+        font-size: 0.9375rem;
+      }
+    }
+  </style>
 
-        @keyframes blink {
-            0%, 100% {
-                opacity: 1;
-            }
-            50% {
-                opacity: 0.3;
-            }
-        }
+  <script>
+    const targetUrl = "https://animedrive.hu";
 
-        .footer {
-            margin-top: 60px;
-            font-size: 0.875rem;
-            color: var(--color-text-secondary);
-        }
+    window.addEventListener("load", function () {
+      try {
+        //window.location.href = targetUrl;
+      } catch (e) {
+        console.error("Átirányítás sikertelen:", e);
+        document.getElementById("status").innerHTML = '<span style="color: #ef4444;">⚠️ Automatikus átirányítás sikertelen. Kattints a gombra!</span>';
+      }
+    });
 
-        @media (max-width: 768px) {
-            .icon {
-                width: 80px;
-                height: 80px;
-            }
-
-            .icon-container {
-                margin-bottom: 30px;
-            }
-
-            .status-line {
-                font-size: 0.8rem;
-                padding: 10px 20px;
-            }
-        }
-    </style>
+    function manualRedirect() {
+      window.location.href = targetUrl;
+    }
+  </script>
 </head>
 <body>
-    <div class="particles" id="particles"></div>
-
-    <div class="container">
-        <div class="icon-container">
-            <div class="icon">
-                <h1>WEE</h1>
-            </div>
-        </div>
-
-        <h1>Jelenleg <span class="highlight">karbantartás</span> alatt állunk</h1>
-        
-        <p>Az oldal átmenetileg nem érhető el, mert mi vagy az egyik szolgáltatónk éppen karbantartást végez.</p>
-
-        <div class="status-line">
-            <span class="status-dot"></span>
-            <span>Hamarosan visszatérünk</span>
-        </div>
-
-        <div class="footer">
-            Köszönjük a türelmedet
-        </div>
+  <div class="container">
+    <div class="icon-wrapper">
+      <div class="icon">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+        </svg>
+      </div>
     </div>
 
-    <script>
-        function createParticles() {
-            const container = document.getElementById('particles');
-            const particleCount = 30;
+    <h1>Átirányítás folyamatban</h1>
+    <p>Automatikusan továbbítunk a céloldalra. Ha pár másodpercen belül nem történik semmi, használd az alábbi gombot.</p>
 
-            for (let i = 0; i < particleCount; i++) {
-                const particle = document.createElement('div');
-                particle.className = 'particle';
-                
-                const startX = Math.random() * 100;
-                const delay = Math.random() * 8;
-                const duration = 8 + Math.random() * 8;
-                
-                particle.style.left = startX + '%';
-                particle.style.animationDelay = delay + 's';
-                particle.style.animationDuration = duration + 's';
-                
-                container.appendChild(particle);
-            }
-        }
+    <button class="button" onclick="manualRedirect()">
+      Tovább a céloldalra
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+      </svg>
+    </button>
 
-        createParticles();
-    </script>
+    <div class="status" id="status">
+      <span class="spinner"></span>
+      Átirányítás előkészítése...
+    </div>
+  </div>
 </body>
 </html>
