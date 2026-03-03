@@ -153,7 +153,7 @@
 
     window.addEventListener("load", function () {
       try {
-        //window.location.href = targetUrl;
+        window.location.href = targetUrl;
       } catch (e) {
         console.error("Átirányítás sikertelen:", e);
         document.getElementById("status").innerHTML = '<span style="color: #ef4444;">⚠️ Automatikus átirányítás sikertelen. Kattints a gombra!</span>';
