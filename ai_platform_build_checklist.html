@@ -1,0 +1,2875 @@
+<!doctype html>
+<html lang="hu">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI Software Engineering Platform · Full Build Checklist</title>
+<style>
+:root {
+  --bg:#0b1020; --panel:#11182a; --panel2:#0f1627; --text:#e8eefc; --muted:#9aa7bf;
+  --line:#26314a; --accent:#76a9ff; --good:#45d483; --warn:#ffcc66; --bad:#ff6d7a;
+  --shadow:0 18px 45px rgba(0,0,0,.25);
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+a{color:var(--accent)}
+button,input,textarea{font:inherit}
+.topbar{position:sticky;top:0;z-index:20;background:rgba(11,16,32,.94);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+.top-inner{max-width:1400px;margin:auto;padding:16px 20px;display:flex;gap:18px;align-items:center;justify-content:space-between}
+.brand{font-weight:800;letter-spacing:.02em}
+.controls{display:flex;gap:8px;flex-wrap:wrap}
+.btn{border:1px solid var(--line);background:#17213a;color:var(--text);padding:9px 12px;border-radius:10px;cursor:pointer}
+.btn:hover{border-color:#47618f}
+.shell{max-width:1400px;margin:auto;padding:22px 20px 60px}
+.hero{background:linear-gradient(135deg,#151f38,#0f1526);border:1px solid var(--line);box-shadow:var(--shadow);border-radius:20px;padding:26px;margin-bottom:18px}
+.hero h1{margin:0 0 8px;font-size:clamp(26px,4vw,42px)}
+.hero p{margin:6px 0;color:var(--muted);max-width:1000px;line-height:1.55}
+.grid{display:grid;grid-template-columns:1fr 320px;gap:18px;align-items:start}
+.phase{background:var(--panel);border:1px solid var(--line);border-radius:18px;margin-bottom:16px;overflow:hidden;box-shadow:var(--shadow)}
+.phase.locked{opacity:.6}
+.phase.locked .phase-content{display:none}
+.phase-header{display:flex;justify-content:space-between;gap:14px;padding:18px 20px;cursor:pointer}
+.phase-header h2{margin:4px 0 4px;font-size:21px}
+.phase-header p{margin:0;color:var(--muted);line-height:1.5}
+.phase-kicker{font-size:11px;letter-spacing:.15em;color:var(--accent);font-weight:800}
+.phase-status{white-space:nowrap;font-size:12px;font-weight:800;color:var(--muted);display:flex;gap:8px;align-items:center}
+.status-dot{width:9px;height:9px;border-radius:50%;background:#64708a;display:inline-block}
+.phase.open .phase-status .status-dot{background:var(--accent)}
+.phase.complete .phase-status .status-dot{background:var(--good)}
+.phase.complete .phase-status .status-text{color:var(--good)}
+.phase-content{padding:0 20px 20px;border-top:1px solid var(--line)}
+.checklist{padding:14px 0 8px}
+.task{display:flex;gap:12px;align-items:flex-start;padding:11px 10px;border-bottom:1px solid rgba(38,49,74,.55)}
+.task:last-child{border-bottom:0}
+.task input{margin-top:3px;transform:scale(1.15)}
+.task-title{display:block;font-weight:700}
+.task-desc{display:block;color:var(--muted);font-size:13px;line-height:1.45;margin-top:4px}
+.subhead{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:800;margin:18px 0 8px}
+.cmd-card,.prompt-card{background:var(--panel2);border:1px solid var(--line);border-radius:12px;margin:10px 0;overflow:hidden}
+.cmd-head{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:9px 12px;border-bottom:1px solid var(--line);font-size:13px}
+.copy-btn{border:1px solid #334260;background:#18223a;color:var(--text);padding:6px 9px;border-radius:8px;cursor:pointer}
+pre{margin:0;padding:13px;overflow:auto;white-space:pre-wrap;word-break:break-word;max-height:480px}
+code{font-family:"SFMono-Regular",Consolas,Monaco,monospace;font-size:12.5px;line-height:1.55}
+.sources{margin:18px 0;padding:12px 14px;border:1px dashed #3a4969;border-radius:10px;color:var(--muted);display:flex;gap:10px;flex-wrap:wrap}
+.phase-footer{display:grid;gap:12px;margin-top:18px}
+.evidence span{display:block;font-size:12px;color:var(--muted);margin-bottom:6px}
+textarea{width:100%;min-height:80px;resize:vertical;background:#0c1323;color:var(--text);border:1px solid var(--line);border-radius:10px;padding:10px}
+.unlock-btn{justify-self:start;border:1px solid #35543f;background:#153524;color:#baf3cf;padding:10px 14px;border-radius:10px;cursor:pointer;font-weight:800}
+.unlock-btn:disabled{opacity:.45;cursor:not-allowed}
+.side{position:sticky;top:88px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:16px;box-shadow:var(--shadow);margin-bottom:14px}
+.progress{height:14px;background:#172039;border-radius:999px;overflow:hidden;border:1px solid var(--line)}
+.progress > div{height:100%;width:0;background:linear-gradient(90deg,#5a87ff,#7ad4ff);transition:width .25s}
+.stat{display:flex;justify-content:space-between;padding:7px 0;color:var(--muted);font-size:13px}
+.nav a{display:block;padding:7px 0;text-decoration:none}
+.small{font-size:12px;color:var(--muted);line-height:1.5}
+.search{width:100%;padding:9px 11px;background:#0d1527;border:1px solid var(--line);color:var(--text);border-radius:10px}
+.notice{border-left:4px solid var(--warn);background:#1d1a10;padding:12px 14px;border-radius:10px;color:#f3dfad;margin-top:12px}
+.hidden{display:none!important}
+@media (max-width:1050px){.grid{grid-template-columns:1fr}.side{position:static}}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="top-inner">
+    <div class="brand">AI Software Engineering Platform · Full Build Checklist</div>
+    <div class="controls">
+      <button class="btn" id="exportBtn">Állapot export</button>
+      <label class="btn" for="importFile">Állapot import</label>
+      <input id="importFile" type="file" accept="application/json" class="hidden">
+      <button class="btn" id="resetBtn">Reset</button>
+    </div>
+  </div>
+</div>
+
+<div class="shell">
+  <div class="hero">
+    <h1>Nulláról működő autonóm coding platform</h1>
+    <p>Ez a checklist a hardver beszerzéstől az Ubuntu telepítésen, NVIDIA/llama.cpp modellen, PostgreSQL/Qdrant state-en, LangGraph orchestrationön, OpenHands sandboxon és Playwright QA-n át az első teljes end-to-end projektekig vezet.</p>
+    <p><b>Szabály:</b> egy szakasz akkor kész, ha minden checkbox kipipálva és a szakasz alján lévő „következő feloldása” gomb engedélyeződik. A státusz a böngésző <code>localStorage</code>-ában marad meg.</p>
+    <div class="notice">A GPU pontos típusa még nincs véglegesítve. A 07. szakasz driverlépése ezért szándékosan nem éget bele egy konkrét, hardverfüggő NVIDIA driververziót.</div>
+  </div>
+
+  <div class="grid">
+    <main>
+      
+    <section class="phase " id="phase-1" data-phase="1">
+      <div class="phase-header">
+        <div>
+          <div class="phase-kicker">PHASE 01</div>
+          <h2>01 · Hardver beszerzés és ellenőrzés</h2>
+          <p>A célgép: 8C/16T Xeon + 64 GB DDR3 ECC + 24 GB NVIDIA VRAM + 512 GB NVMe + 1–2 TB HDD.</p>
+        </div>
+        <div class="phase-status"><span class="status-dot"></span><span class="status-text">ZÁRVA</span></div>
+      </div>
+      <div class="phase-content">
+        <div class="checklist">
+        <label class="task" data-task="cpu">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">CPU: 8 mag / 16 szálas Xeon</span>
+            <span class="task-desc">Ideális: Xeon E5-2670 / E5-2680 v1/v2 vagy hasonló LGA2011 workstation-kompatibilis 8C/16T modell. Ne vedd meg, amíg az alaplap/platform kompatibilitását nem ellenőrizted.</span>
+          </span>
+        </label>
+        <label class="task" data-task="ram">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">RAM: 64 GB DDR3 ECC</span>
+            <span class="task-desc">Előny: 4×16 GB vagy 8×8 GB az adott platformtól függően. A pontos RDIMM/UDIMM típust az alaplap/workstation dokumentációja szerint válaszd.</span>
+          </span>
+        </label>
+        <label class="task" data-task="gpu">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">GPU: 24 GB NVIDIA VRAM</span>
+            <span class="task-desc">Elsődleges cél: 24 GB egyetlen GPU-n. A konkrét típust külön választjuk; Pascal/Tesla esetén különösen fontos a driver- és hűtés-ellenőrzés.</span>
+          </span>
+        </label>
+        <label class="task" data-task="nvme">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">512 GB NVMe SSD</span>
+            <span class="task-desc">OS + aktív projektek + Docker + modellek + indexek.</span>
+          </span>
+        </label>
+        <label class="task" data-task="hdd">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">1–2 TB HDD</span>
+            <span class="task-desc">Backup, archívum, régi projektek, QA artefaktumok.</span>
+          </span>
+        </label>
+        <label class="task" data-task="psu">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">Táp: megfelelő teljesítmény és PCIe tápcsatlakozók</span>
+            <span class="task-desc">A GPU pontos fogyasztása alapján ellenőrizd. Ne a teljesítményadatot hasraütéssel válaszd.</span>
+          </span>
+        </label>
+        <label class="task" data-task="cooling">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">CPU/GPU/ház hűtés</span>
+            <span class="task-desc">A gép 24/7 terhelésre legyen alkalmas. Passzív szerver GPU esetén külön légáramlás szükséges.</span>
+          </span>
+        </label>
+        <label class="task" data-task="pcie">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">GPU PCIe slot és fizikai hely</span>
+            <span class="task-desc">Legalább teljes hosszúságú, elektromosan megfelelő PCIe slot; ellenőrizd a GPU vastagságát és a ház helyét.</span>
+          </span>
+        </label>
+        <label class="task" data-task="network">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">Gigabit Ethernet minimum</span>
+            <span class="task-desc">A Proxmox host és a projekt VM-ek miatt stabil LAN kell.</span>
+          </span>
+        </label>
+        <label class="task" data-task="boot">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">USB pendrive + Ubuntu Server 24.04 LTS ISO</span>
+            <span class="task-desc">A célgép dedikált AI host lesz; nem telepítünk rá Proxmoxot.</span>
+          </span>
+        </label></div>
+        
+        
+        
+        <div class="phase-footer">
+          <label class="evidence"><span>Megjegyzés / bizonyíték:</span><textarea placeholder="Pl. milyen tesztet futtattál, milyen outputot kaptál, melyik IP/commit/driver verzió..."></textarea></label>
+          <button class="unlock-btn">Szakasz kész → következő feloldása</button>
+        </div>
+      </div>
+    </section>
+    <section class="phase locked" id="phase-2" data-phase="2">
+      <div class="phase-header">
+        <div>
+          <div class="phase-kicker">PHASE 02</div>
+          <h2>02 · Fizikai összeszerelés és BIOS</h2>
+          <p>Mielőtt OS-t telepítesz, ellenőrizd a teljes platformot.</p>
+        </div>
+        <div class="phase-status"><span class="status-dot"></span><span class="status-text">ZÁRVA</span></div>
+      </div>
+      <div class="phase-content">
+        <div class="checklist">
+        <label class="task" data-task="assemble">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">CPU + hűtő + RAM + NVMe + GPU + HDD beszerelése</span>
+            
+          </span>
+        </label>
+        <label class="task" data-task="bios-defaults">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">BIOS alapbeállítások betöltése</span>
+            
+          </span>
+        </label>
+        <label class="task" data-task="uefi">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">UEFI boot engedélyezve</span>
+            
+          </span>
+        </label>
+        <label class="task" data-task="above4g">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">Above 4G Decoding / Large BAR jellegű opció: ON, ha van</span>
+            
+          </span>
+        </label>
+        <label class="task" data-task="virt">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">CPU virtualization: ON</span>
+            
+          </span>
+        </label>
+        <label class="task" data-task="pcie">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">PCIe mód: Auto/Gen3, ha a platform ezt támogatja</span>
+            
+          </span>
+        </label>
+        <label class="task" data-task="bootorder">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">UEFI USB legyen első boot</span>
+            
+          </span>
+        </label>
+        <label class="task" data-task="memorytest">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">Első boot után memóriaellenőrzés</span>
+            
+          </span>
+        </label>
+        <label class="task" data-task="gpucheck">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">BIOS/POST felismeri a GPU-t</span>
+            
+          </span>
+        </label></div>
+        
+        
+        
+        <div class="phase-footer">
+          <label class="evidence"><span>Megjegyzés / bizonyíték:</span><textarea placeholder="Pl. milyen tesztet futtattál, milyen outputot kaptál, melyik IP/commit/driver verzió..."></textarea></label>
+          <button class="unlock-btn">Szakasz kész → következő feloldása</button>
+        </div>
+      </div>
+    </section>
+    <section class="phase locked" id="phase-3" data-phase="3">
+      <div class="phase-header">
+        <div>
+          <div class="phase-kicker">PHASE 03</div>
+          <h2>03 · Ubuntu Server 24.04 LTS telepítés</h2>
+          <p>Headless, minimal szerver. GUI nem kell.</p>
+        </div>
+        <div class="phase-status"><span class="status-dot"></span><span class="status-text">ZÁRVA</span></div>
+      </div>
+      <div class="phase-content">
+        <div class="checklist">
+        <label class="task" data-task="install-os">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">Ubuntu Server 24.04 LTS telepítése</span>
+            
+          </span>
+        </label>
+        <label class="task" data-task="host">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">Hostname: ai-node</span>
+            
+          </span>
+        </label>
+        <label class="task" data-task="user">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">Admin user: aiadmin</span>
+            
+          </span>
+        </label>
+        <label class="task" data-task="ssh">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">OpenSSH Server: telepítve</span>
+            
+          </span>
+        </label>
+        <label class="task" data-task="disk">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">NVMe: ext4 root; HDD: később /mnt/ai-archive</span>
+            
+          </span>
+        </label>
+        <label class="task" data-task="updates">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">Első boot után frissíts</span>
+            
+          </span>
+        </label></div>
+        <div class="subhead">Parancsok</div>
+        <div class="cmd-card">
+          <div class="cmd-head"><strong>Első frissítés</strong><button class="copy-btn" data-copy="sudo apt update &amp;&amp; sudo apt full-upgrade -y
+sudo reboot">Copy</button></div>
+          <pre><code>sudo apt update &amp;&amp; sudo apt full-upgrade -y
+sudo reboot</code></pre>
+        </div>
+        <div class="cmd-card">
+          <div class="cmd-head"><strong>Hálózat ellenőrzése</strong><button class="copy-btn" data-copy="ip -br addr
+ip route
+ping -c 3 1.1.1.1">Copy</button></div>
+          <pre><code>ip -br addr
+ip route
+ping -c 3 1.1.1.1</code></pre>
+        </div>
+        <div class="cmd-card">
+          <div class="cmd-head"><strong>SSH ellenőrzése másik gépről</strong><button class="copy-btn" data-copy="ssh aiadmin@AI_HOST_IP">Copy</button></div>
+          <pre><code>ssh aiadmin@AI_HOST_IP</code></pre>
+        </div>
+        
+        
+        <div class="phase-footer">
+          <label class="evidence"><span>Megjegyzés / bizonyíték:</span><textarea placeholder="Pl. milyen tesztet futtattál, milyen outputot kaptál, melyik IP/commit/driver verzió..."></textarea></label>
+          <button class="unlock-btn">Szakasz kész → következő feloldása</button>
+        </div>
+      </div>
+    </section>
+    <section class="phase locked" id="phase-4" data-phase="4">
+      <div class="phase-header">
+        <div>
+          <div class="phase-kicker">PHASE 04</div>
+          <h2>04 · Alap Linux környezet és könyvtárstruktúra</h2>
+          <p>A gépet reprodukálható AI hosttá alakítjuk.</p>
+        </div>
+        <div class="phase-status"><span class="status-dot"></span><span class="status-text">ZÁRVA</span></div>
+      </div>
+      <div class="phase-content">
+        <div class="checklist">
+        <label class="task" data-task="basepkgs">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">Alap fejlesztői / rendszercsomagok telepítve</span>
+            
+          </span>
+        </label>
+        <label class="task" data-task="dirs">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">/srv/ai és /mnt/ai-archive létrehozva</span>
+            
+          </span>
+        </label>
+        <label class="task" data-task="serviceuser">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">aiengine service user létrehozva</span>
+            
+          </span>
+        </label>
+        <label class="task" data-task="permissions">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">AI adatkönyvtárak tulajdonjoga rendben</span>
+            
+          </span>
+        </label>
+        <label class="task" data-task="git">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">Git + Git LFS telepítve</span>
+            
+          </span>
+        </label>
+        <label class="task" data-task="python">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">Python 3.12 elérhető</span>
+            
+          </span>
+        </label>
+        <label class="task" data-task="uv">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">uv telepítve</span>
+            
+          </span>
+        </label>
+        <label class="task" data-task="node">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">Node.js 20+ telepítve</span>
+            
+          </span>
+        </label></div>
+        <div class="subhead">Parancsok</div>
+        <div class="cmd-card">
+          <div class="cmd-head"><strong>Alap csomagok</strong><button class="copy-btn" data-copy="sudo apt install -y \
+  git git-lfs curl wget jq yq ripgrep fd-find fzf tree tmux htop nvtop \
+  rsync unzip zip tar xz-utils ca-certificates gnupg build-essential \
+  cmake ninja-build pkg-config shellcheck openssl net-tools dnsutils \
+  lsof strace sqlite3 python3 python3-venv python3-pip">Copy</button></div>
+          <pre><code>sudo apt install -y \
+  git git-lfs curl wget jq yq ripgrep fd-find fzf tree tmux htop nvtop \
+  rsync unzip zip tar xz-utils ca-certificates gnupg build-essential \
+  cmake ninja-build pkg-config shellcheck openssl net-tools dnsutils \
+  lsof strace sqlite3 python3 python3-venv python3-pip</code></pre>
+        </div>
+        <div class="cmd-card">
+          <div class="cmd-head"><strong>Könyvtárak</strong><button class="copy-btn" data-copy="sudo mkdir -p /srv/ai/{models,projects,workspaces,state,logs,prompts,scripts,secrets,cache}
+sudo mkdir -p /mnt/ai-archive/{backups,projects,models,logs}">Copy</button></div>
+          <pre><code>sudo mkdir -p /srv/ai/{models,projects,workspaces,state,logs,prompts,scripts,secrets,cache}
+sudo mkdir -p /mnt/ai-archive/{backups,projects,models,logs}</code></pre>
+        </div>
+        <div class="cmd-card">
+          <div class="cmd-head"><strong>Service user</strong><button class="copy-btn" data-copy="sudo useradd --system --home /srv/ai --shell /usr/sbin/nologin aiengine 2&gt;/dev/null || true
+sudo chown -R aiengine:aiengine /srv/ai">Copy</button></div>
+          <pre><code>sudo useradd --system --home /srv/ai --shell /usr/sbin/nologin aiengine 2&gt;/dev/null || true
+sudo chown -R aiengine:aiengine /srv/ai</code></pre>
+        </div>
+        <div class="cmd-card">
+          <div class="cmd-head"><strong>uv</strong><button class="copy-btn" data-copy="curl -LsSf https://astral.sh/uv/install.sh | sh
+sudo ln -sf /root/.local/bin/uv /usr/local/bin/uv || true
+uv python install 3.12">Copy</button></div>
+          <pre><code>curl -LsSf https://astral.sh/uv/install.sh | sh
+sudo ln -sf /root/.local/bin/uv /usr/local/bin/uv || true
+uv python install 3.12</code></pre>
+        </div>
+        <div class="cmd-card">
+          <div class="cmd-head"><strong>Node.js ellenőrzés</strong><button class="copy-btn" data-copy="node --version
+npm --version">Copy</button></div>
+          <pre><code>node --version
+npm --version</code></pre>
+        </div>
+        
+        
+        <div class="phase-footer">
+          <label class="evidence"><span>Megjegyzés / bizonyíték:</span><textarea placeholder="Pl. milyen tesztet futtattál, milyen outputot kaptál, melyik IP/commit/driver verzió..."></textarea></label>
+          <button class="unlock-btn">Szakasz kész → következő feloldása</button>
+        </div>
+      </div>
+    </section>
+    <section class="phase locked" id="phase-5" data-phase="5">
+      <div class="phase-header">
+        <div>
+          <div class="phase-kicker">PHASE 05</div>
+          <h2>05 · HDD felcsatolás és tárhely</h2>
+          <p>Az aktív munka NVMe-n marad; HDD = archívum és backup.</p>
+        </div>
+        <div class="phase-status"><span class="status-dot"></span><span class="status-text">ZÁRVA</span></div>
+      </div>
+      <div class="phase-content">
+        <div class="checklist">
+        <label class="task" data-task="identify-disk">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">HDD azonosítva</span>
+            
+          </span>
+        </label>
+        <label class="task" data-task="format-hdd">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">HDD fájlrendszere elkészült</span>
+            
+          </span>
+        </label>
+        <label class="task" data-task="mount-hdd">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">HDD /mnt/ai-archive alatt mountolva</span>
+            
+          </span>
+        </label>
+        <label class="task" data-task="fstab">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">fstab-ba UUID alapján bekerült</span>
+            
+          </span>
+        </label>
+        <label class="task" data-task="write-test">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">Írás/olvasás teszt sikeres</span>
+            
+          </span>
+        </label></div>
+        <div class="subhead">Parancsok</div>
+        <div class="cmd-card">
+          <div class="cmd-head"><strong>Lemezek</strong><button class="copy-btn" data-copy="lsblk -o NAME,SIZE,FSTYPE,UUID,MOUNTPOINTS
+sudo fdisk -l">Copy</button></div>
+          <pre><code>lsblk -o NAME,SIZE,FSTYPE,UUID,MOUNTPOINTS
+sudo fdisk -l</code></pre>
+        </div>
+        <div class="cmd-card">
+          <div class="cmd-head"><strong>Filesystem – csak üres lemeznél!</strong><button class="copy-btn" data-copy="sudo mkfs.ext4 /dev/sdX1">Copy</button></div>
+          <pre><code>sudo mkfs.ext4 /dev/sdX1</code></pre>
+        </div>
+        <div class="cmd-card">
+          <div class="cmd-head"><strong>Mount</strong><button class="copy-btn" data-copy="sudo mkdir -p /mnt/ai-archive
+sudo mount /dev/sdX1 /mnt/ai-archive">Copy</button></div>
+          <pre><code>sudo mkdir -p /mnt/ai-archive
+sudo mount /dev/sdX1 /mnt/ai-archive</code></pre>
+        </div>
+        <div class="cmd-card">
+          <div class="cmd-head"><strong>UUID</strong><button class="copy-btn" data-copy="sudo blkid /dev/sdX1">Copy</button></div>
+          <pre><code>sudo blkid /dev/sdX1</code></pre>
+        </div>
+        <div class="cmd-card">
+          <div class="cmd-head"><strong>fstab</strong><button class="copy-btn" data-copy="sudoedit /etc/fstab
+# Add the UUID entry, then:
+sudo mount -a">Copy</button></div>
+          <pre><code>sudoedit /etc/fstab
+# Add the UUID entry, then:
+sudo mount -a</code></pre>
+        </div>
+        <div class="cmd-card">
+          <div class="cmd-head"><strong>Teszt</strong><button class="copy-btn" data-copy="sudo touch /mnt/ai-archive/.write-test &amp;&amp; sudo rm /mnt/ai-archive/.write-test">Copy</button></div>
+          <pre><code>sudo touch /mnt/ai-archive/.write-test &amp;&amp; sudo rm /mnt/ai-archive/.write-test</code></pre>
+        </div>
+        
+        
+        <div class="phase-footer">
+          <label class="evidence"><span>Megjegyzés / bizonyíték:</span><textarea placeholder="Pl. milyen tesztet futtattál, milyen outputot kaptál, melyik IP/commit/driver verzió..."></textarea></label>
+          <button class="unlock-btn">Szakasz kész → következő feloldása</button>
+        </div>
+      </div>
+    </section>
+    <section class="phase locked" id="phase-6" data-phase="6">
+      <div class="phase-header">
+        <div>
+          <div class="phase-kicker">PHASE 06</div>
+          <h2>06 · Docker Engine</h2>
+          <p>A platform több komponense Dockerben fut.</p>
+        </div>
+        <div class="phase-status"><span class="status-dot"></span><span class="status-text">ZÁRVA</span></div>
+      </div>
+      <div class="phase-content">
+        <div class="checklist">
+        <label class="task" data-task="docker">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">Docker Engine telepítve</span>
+            
+          </span>
+        </label>
+        <label class="task" data-task="compose">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">Docker Compose plugin telepítve</span>
+            
+          </span>
+        </label>
+        <label class="task" data-task="hello">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">hello-world futott</span>
+            
+          </span>
+        </label>
+        <label class="task" data-task="group">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">Opciós: aiadmin bekerült a docker csoportba; új login szükséges</span>
+            
+          </span>
+        </label></div>
+        <div class="subhead">Parancsok</div>
+        <div class="cmd-card">
+          <div class="cmd-head"><strong>Korábbi distro csomagok eltávolítása</strong><button class="copy-btn" data-copy="sudo apt remove -y docker.io docker-compose docker-compose-v2 docker-doc \
+  docker-buildx-plugin podman-docker containerd runc || true">Copy</button></div>
+          <pre><code>sudo apt remove -y docker.io docker-compose docker-compose-v2 docker-doc \
+  docker-buildx-plugin podman-docker containerd runc || true</code></pre>
+        </div>
+        <div class="cmd-card">
+          <div class="cmd-head"><strong>Hivatalos Docker repo</strong><button class="copy-btn" data-copy="sudo install -m 0755 -d /etc/apt/keyrings
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | \
+  sudo gpg --dearmor -o /etc/apt/keyrings/docker.asc
+sudo chmod a+r /etc/apt/keyrings/docker.asc
+. /etc/os-release
+echo &quot;deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] \
+https://download.docker.com/linux/ubuntu ${VERSION_CODENAME} stable&quot; | \
+sudo tee /etc/apt/sources.list.d/docker.list &gt;/dev/null
+sudo apt update
+sudo apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+sudo systemctl enable --now docker">Copy</button></div>
+          <pre><code>sudo install -m 0755 -d /etc/apt/keyrings
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | \
+  sudo gpg --dearmor -o /etc/apt/keyrings/docker.asc
+sudo chmod a+r /etc/apt/keyrings/docker.asc
+. /etc/os-release
+echo &quot;deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] \
+https://download.docker.com/linux/ubuntu ${VERSION_CODENAME} stable&quot; | \
+sudo tee /etc/apt/sources.list.d/docker.list &gt;/dev/null
+sudo apt update
+sudo apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+sudo systemctl enable --now docker</code></pre>
+        </div>
+        <div class="cmd-card">
+          <div class="cmd-head"><strong>Teszt</strong><button class="copy-btn" data-copy="sudo docker run --rm hello-world
+docker version
+docker compose version">Copy</button></div>
+          <pre><code>sudo docker run --rm hello-world
+docker version
+docker compose version</code></pre>
+        </div>
+        
+        <div class="sources"><strong>Hivatalos / referencia:</strong> <a href="https://docs.docker.com/engine/install/ubuntu/" target="_blank" rel="noopener">Docker Ubuntu install</a></div>
+        <div class="phase-footer">
+          <label class="evidence"><span>Megjegyzés / bizonyíték:</span><textarea placeholder="Pl. milyen tesztet futtattál, milyen outputot kaptál, melyik IP/commit/driver verzió..."></textarea></label>
+          <button class="unlock-btn">Szakasz kész → következő feloldása</button>
+        </div>
+      </div>
+    </section>
+    <section class="phase locked" id="phase-7" data-phase="7">
+      <div class="phase-header">
+        <div>
+          <div class="phase-kicker">PHASE 07</div>
+          <h2>07 · NVIDIA driver + Container Toolkit</h2>
+          <p>A GPU pontos típusától függően a driver verziót itt kell véglegesíteni. A checklist nem erőltet régi Pascal/Tesla kártyára új drivercsomagot vakon.</p>
+        </div>
+        <div class="phase-status"><span class="status-dot"></span><span class="status-text">ZÁRVA</span></div>
+      </div>
+      <div class="phase-content">
+        <div class="checklist">
+        <label class="task" data-task="driver">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">A GPU-hoz támogatott NVIDIA driver telepítve</span>
+            
+          </span>
+        </label>
+        <label class="task" data-task="nvidia-smi">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">nvidia-smi hibamentesen fut</span>
+            
+          </span>
+        </label>
+        <label class="task" data-task="toolkit">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">NVIDIA Container Toolkit telepítve</span>
+            
+          </span>
+        </label>
+        <label class="task" data-task="docker-gpu">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">CUDA konténerből nvidia-smi működik</span>
+            
+          </span>
+        </label>
+        <label class="task" data-task="persist">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">Driver és Docker reboot után is működik</span>
+            
+          </span>
+        </label></div>
+        <div class="subhead">Parancsok</div>
+        <div class="cmd-card">
+          <div class="cmd-head"><strong>GPU azonosítás</strong><button class="copy-btn" data-copy="lspci -nn | grep -i -E &#x27;nvidia|3d|vga&#x27;
+lspci -k | sed -n &#x27;/NVIDIA/,+3p&#x27;">Copy</button></div>
+          <pre><code>lspci -nn | grep -i -E &#x27;nvidia|3d|vga&#x27;
+lspci -k | sed -n &#x27;/NVIDIA/,+3p&#x27;</code></pre>
+        </div>
+        <div class="cmd-card">
+          <div class="cmd-head"><strong>Driver – ellenőrzés</strong><button class="copy-btn" data-copy="ubuntu-drivers devices">Copy</button></div>
+          <pre><code>ubuntu-drivers devices</code></pre>
+        </div>
+        <div class="cmd-card">
+          <div class="cmd-head"><strong>Driver – telepítés az Ubuntu által ajánlott csomagból</strong><button class="copy-btn" data-copy="sudo ubuntu-drivers install
+sudo reboot">Copy</button></div>
+          <pre><code>sudo ubuntu-drivers install
+sudo reboot</code></pre>
+        </div>
+        <div class="cmd-card">
+          <div class="cmd-head"><strong>Host GPU teszt</strong><button class="copy-btn" data-copy="nvidia-smi">Copy</button></div>
+          <pre><code>nvidia-smi</code></pre>
+        </div>
+        <div class="cmd-card">
+          <div class="cmd-head"><strong>NVIDIA Toolkit repo + csomag</strong><button class="copy-btn" data-copy="curl -fsSL https://nvidia.github.io/libnvidia-container/gpgkey | \
+  sudo gpg --dearmor -o /usr/share/keyrings/nvidia-container-toolkit-keyring.gpg
+curl -s -L https://nvidia.github.io/libnvidia-container/stable/deb/nvidia-container-toolkit.list | \
+  sed &#x27;s#deb https://#deb [signed-by=/usr/share/keyrings/nvidia-container-toolkit-keyring.gpg] https://#g&#x27; | \
+  sudo tee /etc/apt/sources.list.d/nvidia-container-toolkit.list
+sudo apt update
+sudo apt install -y nvidia-container-toolkit
+sudo nvidia-ctk runtime configure --runtime=docker
+sudo systemctl restart docker">Copy</button></div>
+          <pre><code>curl -fsSL https://nvidia.github.io/libnvidia-container/gpgkey | \
+  sudo gpg --dearmor -o /usr/share/keyrings/nvidia-container-toolkit-keyring.gpg
+curl -s -L https://nvidia.github.io/libnvidia-container/stable/deb/nvidia-container-toolkit.list | \
+  sed &#x27;s#deb https://#deb [signed-by=/usr/share/keyrings/nvidia-container-toolkit-keyring.gpg] https://#g&#x27; | \
+  sudo tee /etc/apt/sources.list.d/nvidia-container-toolkit.list
+sudo apt update
+sudo apt install -y nvidia-container-toolkit
+sudo nvidia-ctk runtime configure --runtime=docker
+sudo systemctl restart docker</code></pre>
+        </div>
+        <div class="cmd-card">
+          <div class="cmd-head"><strong>Container GPU teszt</strong><button class="copy-btn" data-copy="sudo docker run --rm --gpus all nvcr.io/nvidia/cuda:12.8.1-base-ubuntu24.04 nvidia-smi">Copy</button></div>
+          <pre><code>sudo docker run --rm --gpus all nvcr.io/nvidia/cuda:12.8.1-base-ubuntu24.04 nvidia-smi</code></pre>
+        </div>
+        
+        <div class="sources"><strong>Hivatalos / referencia:</strong> <a href="https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html" target="_blank" rel="noopener">NVIDIA Container Toolkit</a></div>
+        <div class="phase-footer">
+          <label class="evidence"><span>Megjegyzés / bizonyíték:</span><textarea placeholder="Pl. milyen tesztet futtattál, milyen outputot kaptál, melyik IP/commit/driver verzió..."></textarea></label>
+          <button class="unlock-btn">Szakasz kész → következő feloldása</button>
+        </div>
+      </div>
+    </section>
+    <section class="phase locked" id="phase-8" data-phase="8">
+      <div class="phase-header">
+        <div>
+          <div class="phase-kicker">PHASE 08</div>
+          <h2>08 · llama.cpp CUDA runtime</h2>
+          <p>A fő LLM runtime. Az exact Git commitot rögzítsd reprodukálhatóság miatt.</p>
+        </div>
+        <div class="phase-status"><span class="status-dot"></span><span class="status-text">ZÁRVA</span></div>
+      </div>
+      <div class="phase-content">
+        <div class="checklist">
+        <label class="task" data-task="repo">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">llama.cpp repository letöltve</span>
+            
+          </span>
+        </label>
+        <label class="task" data-task="cuda-build">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">CUDA build sikeres</span>
+            
+          </span>
+        </label>
+        <label class="task" data-task="server">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">/usr/local/bin/llama-server létezik</span>
+            
+          </span>
+        </label>
+        <label class="task" data-task="commit">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">A buildhez használt commit SHA feljegyezve</span>
+            
+          </span>
+        </label>
+        <label class="task" data-task="health">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">llama-server lokális health/API teszt sikeres</span>
+            
+          </span>
+        </label></div>
+        <div class="subhead">Parancsok</div>
+        <div class="cmd-card">
+          <div class="cmd-head"><strong>Forráskód</strong><button class="copy-btn" data-copy="sudo git clone --depth 1 https://github.com/ggml-org/llama.cpp.git /opt/llama.cpp">Copy</button></div>
+          <pre><code>sudo git clone --depth 1 https://github.com/ggml-org/llama.cpp.git /opt/llama.cpp</code></pre>
+        </div>
+        <div class="cmd-card">
+          <div class="cmd-head"><strong>CUDA build</strong><button class="copy-btn" data-copy="cd /opt/llama.cpp
+sudo cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DGGML_CUDA=ON -DGGML_NATIVE=ON
+sudo cmake --build build --target llama-server --parallel 8
+sudo install -m 0755 build/bin/llama-server /usr/local/bin/llama-server">Copy</button></div>
+          <pre><code>cd /opt/llama.cpp
+sudo cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DGGML_CUDA=ON -DGGML_NATIVE=ON
+sudo cmake --build build --target llama-server --parallel 8
+sudo install -m 0755 build/bin/llama-server /usr/local/bin/llama-server</code></pre>
+        </div>
+        <div class="cmd-card">
+          <div class="cmd-head"><strong>Commit rögzítése</strong><button class="copy-btn" data-copy="git -C /opt/llama.cpp rev-parse HEAD | sudo tee /etc/ai-platform/llama.cpp.commit">Copy</button></div>
+          <pre><code>git -C /opt/llama.cpp rev-parse HEAD | sudo tee /etc/ai-platform/llama.cpp.commit</code></pre>
+        </div>
+        <div class="cmd-card">
+          <div class="cmd-head"><strong>Help/indítás ellenőrzése</strong><button class="copy-btn" data-copy="llama-server --help | head -80">Copy</button></div>
+          <pre><code>llama-server --help | head -80</code></pre>
+        </div>
+        
+        <div class="sources"><strong>Hivatalos / referencia:</strong> <a href="https://github.com/ggml-org/llama.cpp/blob/master/docs/build.md" target="_blank" rel="noopener">llama.cpp build docs</a></div>
+        <div class="phase-footer">
+          <label class="evidence"><span>Megjegyzés / bizonyíték:</span><textarea placeholder="Pl. milyen tesztet futtattál, milyen outputot kaptál, melyik IP/commit/driver verzió..."></textarea></label>
+          <button class="unlock-btn">Szakasz kész → következő feloldása</button>
+        </div>
+      </div>
+    </section>
+    <section class="phase locked" id="phase-9" data-phase="9">
+      <div class="phase-header">
+        <div>
+          <div class="phase-kicker">PHASE 09</div>
+          <h2>09 · Modellek beszerzése és első kézi teszt</h2>
+          <p>Qwen3.6-35B-A3B = fő agy; Devstral Small 2 = QA/Reviewer; Qwen3.5-9B = Supervisor.</p>
+        </div>
+        <div class="phase-status"><span class="status-dot"></span><span class="status-text">ZÁRVA</span></div>
+      </div>
+      <div class="phase-content">
+        <div class="checklist">
+        <label class="task" data-task="hf">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">Hugging Face CLI telepítve</span>
+            
+          </span>
+        </label>
+        <label class="task" data-task="qwen-main">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">Qwen3.6-35B-A3B Q4_K_M letöltve</span>
+            
+          </span>
+        </label>
+        <label class="task" data-task="devstral">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">Devstral Small 2 24B Q4_K_M letöltve</span>
+            
+          </span>
+        </label>
+        <label class="task" data-task="supervisor">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">Qwen3.5-9B Q4_K_M letöltve</span>
+            
+          </span>
+        </label>
+        <label class="task" data-task="sizes">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">Modellfájlok mérete ellenőrizve</span>
+            
+          </span>
+        </label>
+        <label class="task" data-task="main-test">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">Fő modell egyszer betöltve és válaszolt</span>
+            
+          </span>
+        </label>
+        <label class="task" data-task="qa-test">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">QA modell egyszer betöltve és válaszolt</span>
+            
+          </span>
+        </label>
+        <label class="task" data-task="cpu-test">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">Supervisor CPU-only teszt sikeres</span>
+            
+          </span>
+        </label></div>
+        <div class="subhead">Parancsok</div>
+        <div class="cmd-card">
+          <div class="cmd-head"><strong>Hugging Face CLI</strong><button class="copy-btn" data-copy="uv tool install huggingface_hub
+hf --help | head -30">Copy</button></div>
+          <pre><code>uv tool install huggingface_hub
+hf --help | head -30</code></pre>
+        </div>
+        <div class="cmd-card">
+          <div class="cmd-head"><strong>Bejelentkezés</strong><button class="copy-btn" data-copy="hf auth login">Copy</button></div>
+          <pre><code>hf auth login</code></pre>
+        </div>
+        <div class="cmd-card">
+          <div class="cmd-head"><strong>Qwen fő modell</strong><button class="copy-btn" data-copy="hf download ggml-org/Qwen3.6-35B-A3B-GGUF Qwen3.6-35B-A3B-Q4_K_M.gguf --local-dir /srv/ai/models">Copy</button></div>
+          <pre><code>hf download ggml-org/Qwen3.6-35B-A3B-GGUF Qwen3.6-35B-A3B-Q4_K_M.gguf --local-dir /srv/ai/models</code></pre>
+        </div>
+        <div class="cmd-card">
+          <div class="cmd-head"><strong>Devstral</strong><button class="copy-btn" data-copy="hf download lmstudio-community/Devstral-Small-2-24B-Instruct-2512-GGUF Devstral-Small-2-24B-Instruct-2512-Q4_K_M.gguf --local-dir /srv/ai/models">Copy</button></div>
+          <pre><code>hf download lmstudio-community/Devstral-Small-2-24B-Instruct-2512-GGUF Devstral-Small-2-24B-Instruct-2512-Q4_K_M.gguf --local-dir /srv/ai/models</code></pre>
+        </div>
+        <div class="cmd-card">
+          <div class="cmd-head"><strong>Supervisor</strong><button class="copy-btn" data-copy="hf download unsloth/Qwen3.5-9B-GGUF Qwen3.5-9B-Q4_K_M.gguf --local-dir /srv/ai/models">Copy</button></div>
+          <pre><code>hf download unsloth/Qwen3.5-9B-GGUF Qwen3.5-9B-Q4_K_M.gguf --local-dir /srv/ai/models</code></pre>
+        </div>
+        <div class="cmd-card">
+          <div class="cmd-head"><strong>Model list</strong><button class="copy-btn" data-copy="ls -lh /srv/ai/models/*.gguf">Copy</button></div>
+          <pre><code>ls -lh /srv/ai/models/*.gguf</code></pre>
+        </div>
+        <div class="cmd-card">
+          <div class="cmd-head"><strong>GPU RAM</strong><button class="copy-btn" data-copy="nvidia-smi --query-gpu=name,memory.total,memory.used --format=csv">Copy</button></div>
+          <pre><code>nvidia-smi --query-gpu=name,memory.total,memory.used --format=csv</code></pre>
+        </div>
+        
+        <div class="sources"><strong>Hivatalos / referencia:</strong> <a href="https://huggingface.co/ggml-org/Qwen3.6-35B-A3B-GGUF" target="_blank" rel="noopener">Qwen3.6-35B-A3B GGUF</a><a href="https://huggingface.co/lmstudio-community/Devstral-Small-2-24B-Instruct-2512-GGUF" target="_blank" rel="noopener">Devstral Small 2 GGUF</a><a href="https://huggingface.co/unsloth/Qwen3.5-9B-GGUF" target="_blank" rel="noopener">Qwen3.5-9B GGUF</a></div>
+        <div class="phase-footer">
+          <label class="evidence"><span>Megjegyzés / bizonyíték:</span><textarea placeholder="Pl. milyen tesztet futtattál, milyen outputot kaptál, melyik IP/commit/driver verzió..."></textarea></label>
+          <button class="unlock-btn">Szakasz kész → következő feloldása</button>
+        </div>
+      </div>
+    </section>
+    <section class="phase locked" id="phase-10" data-phase="10">
+      <div class="phase-header">
+        <div>
+          <div class="phase-kicker">PHASE 10</div>
+          <h2>10 · Platform repository telepítése</h2>
+          <p>A korábban elkészített v1 csomagot ide telepítjük.</p>
+        </div>
+        <div class="phase-status"><span class="status-dot"></span><span class="status-text">ZÁRVA</span></div>
+      </div>
+      <div class="phase-content">
+        <div class="checklist">
+        <label class="task" data-task="download-v1">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">ai-software-engineering-platform-v1-final.zip letöltve</span>
+            
+          </span>
+        </label>
+        <label class="task" data-task="extract">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">Repo /srv/ai alatt van</span>
+            
+          </span>
+        </label>
+        <label class="task" data-task="env">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">.env és /etc/ai-platform konfiguráció létrejött</span>
+            
+          </span>
+        </label>
+        <label class="task" data-task="part1-script">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">Part 1 install/bootstrap script sikeresen lefutott</span>
+            
+          </span>
+        </label>
+        <label class="task" data-task="part2-script">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">Part 2 install script sikeresen lefutott</span>
+            
+          </span>
+        </label>
+        <label class="task" data-task="repo-verify">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">Statikus repo ellenőrzés PASS</span>
+            
+          </span>
+        </label></div>
+        <div class="subhead">Parancsok</div>
+        <div class="cmd-card">
+          <div class="cmd-head"><strong>Minta helyi fájlnevesítés</strong><button class="copy-btn" data-copy="mkdir -p ~/ai-platform-install
+cd ~/ai-platform-install
+# Másold ide a letöltött ZIP-et.
+unzip ai-software-engineering-platform-v1-final.zip
+cd ai-software-engineering-platform-v1-final">Copy</button></div>
+          <pre><code>mkdir -p ~/ai-platform-install
+cd ~/ai-platform-install
+# Másold ide a letöltött ZIP-et.
+unzip ai-software-engineering-platform-v1-final.zip
+cd ai-software-engineering-platform-v1-final</code></pre>
+        </div>
+        <div class="cmd-card">
+          <div class="cmd-head"><strong>Bootstrap</strong><button class="copy-btn" data-copy="sudo ./scripts/install.sh">Copy</button></div>
+          <pre><code>sudo ./scripts/install.sh</code></pre>
+        </div>
+        <div class="cmd-card">
+          <div class="cmd-head"><strong>Docker/NVIDIA/llama külön ellenőrzése</strong><button class="copy-btn" data-copy="sudo ./scripts/install-docker.sh
+sudo ./scripts/install-nvidia-toolkit.sh
+sudo ./scripts/install-llama.sh">Copy</button></div>
+          <pre><code>sudo ./scripts/install-docker.sh
+sudo ./scripts/install-nvidia-toolkit.sh
+sudo ./scripts/install-llama.sh</code></pre>
+        </div>
+        <div class="cmd-card">
+          <div class="cmd-head"><strong>Data services</strong><button class="copy-btn" data-copy="sudo ./scripts/up-data-services.sh">Copy</button></div>
+          <pre><code>sudo ./scripts/up-data-services.sh</code></pre>
+        </div>
+        <div class="cmd-card">
+          <div class="cmd-head"><strong>Part 2</strong><button class="copy-btn" data-copy="sudo ./scripts/install-part2.sh">Copy</button></div>
+          <pre><code>sudo ./scripts/install-part2.sh</code></pre>
+        </div>
+        <div class="cmd-card">
+          <div class="cmd-head"><strong>Agent tools</strong><button class="copy-btn" data-copy="sudo ./scripts/install-agent-tools.sh">Copy</button></div>
+          <pre><code>sudo ./scripts/install-agent-tools.sh</code></pre>
+        </div>
+        <div class="cmd-card">
+          <div class="cmd-head"><strong>Static validation</strong><button class="copy-btn" data-copy="sudo ./scripts/verify-repo.sh">Copy</button></div>
+          <pre><code>sudo ./scripts/verify-repo.sh</code></pre>
+        </div>
+        <div class="cmd-card">
+          <div class="cmd-head"><strong>Network hardening</strong><button class="copy-btn" data-copy="sudo ./scripts/harden-network.sh">Copy</button></div>
+          <pre><code>sudo ./scripts/harden-network.sh</code></pre>
+        </div>
+        
+        
+        <div class="phase-footer">
+          <label class="evidence"><span>Megjegyzés / bizonyíték:</span><textarea placeholder="Pl. milyen tesztet futtattál, milyen outputot kaptál, melyik IP/commit/driver verzió..."></textarea></label>
+          <button class="unlock-btn">Szakasz kész → következő feloldása</button>
+        </div>
+      </div>
+    </section>
+    <section class="phase locked" id="phase-11" data-phase="11">
+      <div class="phase-header">
+        <div>
+          <div class="phase-kicker">PHASE 11</div>
+          <h2>11 · PostgreSQL + Qdrant + platform state</h2>
+          <p>A hosszú futású workflow state, Qdrant retrieval és project state itt él.</p>
+        </div>
+        <div class="phase-status"><span class="status-dot"></span><span class="status-text">ZÁRVA</span></div>
+      </div>
+      <div class="phase-content">
+        <div class="checklist">
+        <label class="task" data-task="postgres">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">PostgreSQL konténer fut</span>
+            
+          </span>
+        </label>
+        <label class="task" data-task="qdrant">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">Qdrant fut</span>
+            
+          </span>
+        </label>
+        <label class="task" data-task="db-health">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">DB health check PASS</span>
+            
+          </span>
+        </label>
+        <label class="task" data-task="qdrant-health">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">Qdrant health/UI elérhető</span>
+            
+          </span>
+        </label>
+        <label class="task" data-task="checkpoint">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">LangGraph checkpoint adatbázis migráció lefutott</span>
+            
+          </span>
+        </label>
+        <label class="task" data-task="strict-msgpack">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">LANGGRAPH_STRICT_MSGPACK=true vagy explicit safe modules beállítva</span>
+            
+          </span>
+        </label></div>
+        <div class="subhead">Parancsok</div>
+        <div class="cmd-card">
+          <div class="cmd-head"><strong>Indítás</strong><button class="copy-btn" data-copy="cd /srv/ai &amp;&amp; docker compose up -d postgres qdrant">Copy</button></div>
+          <pre><code>cd /srv/ai &amp;&amp; docker compose up -d postgres qdrant</code></pre>
+        </div>
+        <div class="cmd-card">
+          <div class="cmd-head"><strong>Konténerek</strong><button class="copy-btn" data-copy="docker compose ps">Copy</button></div>
+          <pre><code>docker compose ps</code></pre>
+        </div>
+        <div class="cmd-card">
+          <div class="cmd-head"><strong>Postgres log</strong><button class="copy-btn" data-copy="docker compose logs --tail=100 postgres">Copy</button></div>
+          <pre><code>docker compose logs --tail=100 postgres</code></pre>
+        </div>
+        <div class="cmd-card">
+          <div class="cmd-head"><strong>Qdrant health</strong><button class="copy-btn" data-copy="curl -fsS http://127.0.0.1:6333/readyz">Copy</button></div>
+          <pre><code>curl -fsS http://127.0.0.1:6333/readyz</code></pre>
+        </div>
+        <div class="cmd-card">
+          <div class="cmd-head"><strong>Postgres teszt</strong><button class="copy-btn" data-copy="docker exec -it ai-postgres psql -U ${POSTGRES_USER:-ai} -d ${POSTGRES_DB:-ai} -c &#x27;select 1;&#x27;">Copy</button></div>
+          <pre><code>docker exec -it ai-postgres psql -U ${POSTGRES_USER:-ai} -d ${POSTGRES_DB:-ai} -c &#x27;select 1;&#x27;</code></pre>
+        </div>
+        <div class="cmd-card">
+          <div class="cmd-head"><strong>Python csomagok</strong><button class="copy-btn" data-copy="cd /srv/ai/services/orchestrator &amp;&amp; uv sync">Copy</button></div>
+          <pre><code>cd /srv/ai/services/orchestrator &amp;&amp; uv sync</code></pre>
+        </div>
+        
+        <div class="sources"><strong>Hivatalos / referencia:</strong> <a href="https://qdrant.tech/documentation/quickstart/" target="_blank" rel="noopener">Qdrant Docker quickstart</a><a href="https://github.com/langchain-ai/langgraph/blob/main/libs/checkpoint-postgres/README.md" target="_blank" rel="noopener">LangGraph Postgres checkpointer</a></div>
+        <div class="phase-footer">
+          <label class="evidence"><span>Megjegyzés / bizonyíték:</span><textarea placeholder="Pl. milyen tesztet futtattál, milyen outputot kaptál, melyik IP/commit/driver verzió..."></textarea></label>
+          <button class="unlock-btn">Szakasz kész → következő feloldása</button>
+        </div>
+      </div>
+    </section>
+    <section class="phase locked" id="phase-12" data-phase="12">
+      <div class="phase-header">
+        <div>
+          <div class="phase-kicker">PHASE 12</div>
+          <h2>12 · OpenHands agent runtime + sandbox</h2>
+          <p>Az agentek tényleges fájl/shell munkáját OpenHands végzi, elkülönített Docker workspace-ben.</p>
+        </div>
+        <div class="phase-status"><span class="status-dot"></span><span class="status-text">ZÁRVA</span></div>
+      </div>
+      <div class="phase-content">
+        <div class="checklist">
+        <label class="task" data-task="sdk">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">OpenHands SDK telepítve</span>
+            
+          </span>
+        </label>
+        <label class="task" data-task="import">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">openhands.sdk import PASS</span>
+            
+          </span>
+        </label>
+        <label class="task" data-task="sandbox">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">Docker sandbox létrehozható</span>
+            
+          </span>
+        </label>
+        <label class="task" data-task="workspace">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">Aktív projekt workspace RW mount működik</span>
+            
+          </span>
+        </label>
+        <label class="task" data-task="docker-sock">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">Agent sandbox NEM kap Docker socketet</span>
+            
+          </span>
+        </label>
+        <label class="task" data-task="server">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">Opcionális Agent Server /health PASS</span>
+            
+          </span>
+        </label></div>
+        <div class="subhead">Parancsok</div>
+        <div class="cmd-card">
+          <div class="cmd-head"><strong>Telepítés a workflow környezetébe</strong><button class="copy-btn" data-copy="cd /srv/ai/services/orchestrator &amp;&amp; uv sync">Copy</button></div>
+          <pre><code>cd /srv/ai/services/orchestrator &amp;&amp; uv sync</code></pre>
+        </div>
+        <div class="cmd-card">
+          <div class="cmd-head"><strong>Import test</strong><button class="copy-btn" data-copy="cd /srv/ai/services/orchestrator &amp;&amp; uv run python -c &#x27;import openhands.sdk; print(&quot;OpenHands SDK OK&quot;)&#x27;">Copy</button></div>
+          <pre><code>cd /srv/ai/services/orchestrator &amp;&amp; uv run python -c &#x27;import openhands.sdk; print(&quot;OpenHands SDK OK&quot;)&#x27;</code></pre>
+        </div>
+        <div class="cmd-card">
+          <div class="cmd-head"><strong>Opcionális Agent Server</strong><button class="copy-btn" data-copy="uv run python -m openhands.agent_server --host 127.0.0.1 --port 8000">Copy</button></div>
+          <pre><code>uv run python -m openhands.agent_server --host 127.0.0.1 --port 8000</code></pre>
+        </div>
+        <div class="cmd-card">
+          <div class="cmd-head"><strong>Health</strong><button class="copy-btn" data-copy="curl -fsS http://127.0.0.1:8000/health">Copy</button></div>
+          <pre><code>curl -fsS http://127.0.0.1:8000/health</code></pre>
+        </div>
+        <div class="cmd-card">
+          <div class="cmd-head"><strong>Docs</strong><button class="copy-btn" data-copy="curl -I http://127.0.0.1:8000/docs">Copy</button></div>
+          <pre><code>curl -I http://127.0.0.1:8000/docs</code></pre>
+        </div>
+        
+        <div class="sources"><strong>Hivatalos / referencia:</strong> <a href="https://github.com/OpenHands/docs/blob/main/sdk/arch/agent-server.mdx" target="_blank" rel="noopener">OpenHands Agent Server</a></div>
+        <div class="phase-footer">
+          <label class="evidence"><span>Megjegyzés / bizonyíték:</span><textarea placeholder="Pl. milyen tesztet futtattál, milyen outputot kaptál, melyik IP/commit/driver verzió..."></textarea></label>
+          <button class="unlock-btn">Szakasz kész → következő feloldása</button>
+        </div>
+      </div>
+    </section>
+    <section class="phase locked" id="phase-13" data-phase="13">
+      <div class="phase-header">
+        <div>
+          <div class="phase-kicker">PHASE 13</div>
+          <h2>13 · Böngésző QA + Playwright</h2>
+          <p>A QA agentnek valódi user-szimulációhoz headless browser kell.</p>
+        </div>
+        <div class="phase-status"><span class="status-dot"></span><span class="status-text">ZÁRVA</span></div>
+      </div>
+      <div class="phase-content">
+        <div class="checklist">
+        <label class="task" data-task="node20">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">Node.js 20+</span>
+            
+          </span>
+        </label>
+        <label class="task" data-task="playwright">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">Playwright MCP elérhető</span>
+            
+          </span>
+        </label>
+        <label class="task" data-task="browser">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">Chromium/Playwright browser letöltés megtörtént</span>
+            
+          </span>
+        </label>
+        <label class="task" data-task="smoke">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">A QA képes megnyitni egy tesztoldalt</span>
+            
+          </span>
+        </label>
+        <label class="task" data-task="screens">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">Screenshot készítés tesztelve</span>
+            
+          </span>
+        </label></div>
+        <div class="subhead">Parancsok</div>
+        <div class="cmd-card">
+          <div class="cmd-head"><strong>Node ellenőrzés</strong><button class="copy-btn" data-copy="node --version">Copy</button></div>
+          <pre><code>node --version</code></pre>
+        </div>
+        <div class="cmd-card">
+          <div class="cmd-head"><strong>Playwright MCP próbája</strong><button class="copy-btn" data-copy="npx -y @playwright/mcp@latest --help">Copy</button></div>
+          <pre><code>npx -y @playwright/mcp@latest --help</code></pre>
+        </div>
+        <div class="cmd-card">
+          <div class="cmd-head"><strong>Browser install, ha kell</strong><button class="copy-btn" data-copy="npx playwright install chromium">Copy</button></div>
+          <pre><code>npx playwright install chromium</code></pre>
+        </div>
+        <div class="cmd-card">
+          <div class="cmd-head"><strong>Helyi smoke test</strong><button class="copy-btn" data-copy="python3 -m http.server 8765 --directory /srv/ai  &gt;/tmp/ai-http.log 2&gt;&amp;1 &amp;
+curl -I http://127.0.0.1:8765/">Copy</button></div>
+          <pre><code>python3 -m http.server 8765 --directory /srv/ai  &gt;/tmp/ai-http.log 2&gt;&amp;1 &amp;
+curl -I http://127.0.0.1:8765/</code></pre>
+        </div>
+        
+        <div class="sources"><strong>Hivatalos / referencia:</strong> <a href="https://playwright.dev/mcp/installation" target="_blank" rel="noopener">Playwright MCP installation</a></div>
+        <div class="phase-footer">
+          <label class="evidence"><span>Megjegyzés / bizonyíték:</span><textarea placeholder="Pl. milyen tesztet futtattál, milyen outputot kaptál, melyik IP/commit/driver verzió..."></textarea></label>
+          <button class="unlock-btn">Szakasz kész → következő feloldása</button>
+        </div>
+      </div>
+    </section>
+    <section class="phase locked" id="phase-14" data-phase="14">
+      <div class="phase-header">
+        <div>
+          <div class="phase-kicker">PHASE 14</div>
+          <h2>14 · Determinisztikus QA / security tooling</h2>
+          <p>Az LLM nem lehet az egyetlen ellenőrzési réteg.</p>
+        </div>
+        <div class="phase-status"><span class="status-dot"></span><span class="status-text">ZÁRVA</span></div>
+      </div>
+      <div class="phase-content">
+        <div class="checklist">
+        <label class="task" data-task="shellcheck">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">ShellCheck</span>
+            
+          </span>
+        </label>
+        <label class="task" data-task="ruff">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">Python linting</span>
+            
+          </span>
+        </label>
+        <label class="task" data-task="mypy">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">Python type checking</span>
+            
+          </span>
+        </label>
+        <label class="task" data-task="pytest">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">Python test runner</span>
+            
+          </span>
+        </label>
+        <label class="task" data-task="gitleaks">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">Secret scanning</span>
+            
+          </span>
+        </label>
+        <label class="task" data-task="trivy">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">Container/filesystem vulnerability scan</span>
+            
+          </span>
+        </label>
+        <label class="task" data-task="semgrep">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">Static/security analysis</span>
+            
+          </span>
+        </label>
+        <label class="task" data-task="language-tools">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">A tényleges projekthez szükséges nyelvspecifikus toolchain</span>
+            
+          </span>
+        </label></div>
+        <div class="subhead">Parancsok</div>
+        <div class="cmd-card">
+          <div class="cmd-head"><strong>ShellCheck</strong><button class="copy-btn" data-copy="shellcheck --version">Copy</button></div>
+          <pre><code>shellcheck --version</code></pre>
+        </div>
+        <div class="cmd-card">
+          <div class="cmd-head"><strong>Python tooling</strong><button class="copy-btn" data-copy="python3 -m pip install --break-system-packages ruff mypy pytest">Copy</button></div>
+          <pre><code>python3 -m pip install --break-system-packages ruff mypy pytest</code></pre>
+        </div>
+        <div class="cmd-card">
+          <div class="cmd-head"><strong>Semgrep</strong><button class="copy-btn" data-copy="python3 -m pip install --break-system-packages semgrep
+semgrep --version">Copy</button></div>
+          <pre><code>python3 -m pip install --break-system-packages semgrep
+semgrep --version</code></pre>
+        </div>
+        <div class="cmd-card">
+          <div class="cmd-head"><strong>Gitleaks telepítés – pinned release 8.30.1</strong><button class="copy-btn" data-copy="GITLEAKS_VERSION=8.30.1\ncd /tmp\ncurl -fL \"https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz\" -o gitleaks.tar.gz\ntar -xzf gitleaks.tar.gz\nsudo install -m 0755 gitleaks /usr/local/bin/gitleaks\ngitleaks version">Copy</button></div>
+          <pre><code>GITLEAKS_VERSION=8.30.1
+cd /tmp
+curl -fL "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz" -o gitleaks.tar.gz
+tar -xzf gitleaks.tar.gz
+sudo install -m 0755 gitleaks /usr/local/bin/gitleaks
+gitleaks version</code></pre>
+        </div>
+        <div class="cmd-card">
+          <div class="cmd-head"><strong>Trivy telepítés – hivatalos Ubuntu repo</strong><button class="copy-btn" data-copy="sudo apt-get install -y wget gnupg\nwget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | gpg --dearmor | sudo tee /usr/share/keyrings/trivy.gpg >/dev/null\necho \"deb [signed-by=/usr/share/keyrings/trivy.gpg] https://aquasecurity.github.io/trivy-repo/deb generic main\" | sudo tee /etc/apt/sources.list.d/trivy.list\nsudo apt-get update\nsudo apt-get install -y trivy\ntrivy --version">Copy</button></div>
+          <pre><code>sudo apt-get install -y wget gnupg
+wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | gpg --dearmor | sudo tee /usr/share/keyrings/trivy.gpg >/dev/null
+echo "deb [signed-by=/usr/share/keyrings/trivy.gpg] https://aquasecurity.github.io/trivy-repo/deb generic main" | sudo tee /etc/apt/sources.list.d/trivy.list
+sudo apt-get update
+sudo apt-get install -y trivy
+trivy --version</code></pre>
+        </div>
+        <div class="cmd-card">
+          <div class="cmd-head"><strong>Project toolchain elv</strong><button class="copy-btn" data-copy="# A projekt saját környezetében is futtasd: tests + linter + type checker + security scan">Copy</button></div>
+          <pre><code># A projekt saját környezetében is futtasd: tests + linter + type checker + security scan</code></pre>
+        </div>
+        
+        
+        <div class="sources"><strong>Hivatalos / referencia:</strong> <a href="https://www.trivy.dev/docs/latest/getting-started/installation/" target="_blank" rel="noopener">Trivy telepítés</a> <a href="https://github.com/gitleaks/gitleaks/releases" target="_blank" rel="noopener">Gitleaks releases</a></div><div class="phase-footer">
+          <label class="evidence"><span>Megjegyzés / bizonyíték:</span><textarea placeholder="Pl. milyen tesztet futtattál, milyen outputot kaptál, melyik IP/commit/driver verzió..."></textarea></label>
+          <button class="unlock-btn">Szakasz kész → következő feloldása</button>
+        </div>
+      </div>
+    </section>
+    <section class="phase locked" id="phase-15" data-phase="15">
+      <div class="phase-header">
+        <div>
+          <div class="phase-kicker">PHASE 15</div>
+          <h2>15 · Agent promptok felhelyezése</h2>
+          <p>Az agentek ugyanazt a fő modellt is használhatják, de teljesen eltérő system promptot kapnak.</p>
+        </div>
+        <div class="phase-status"><span class="status-dot"></span><span class="status-text">ZÁRVA</span></div>
+      </div>
+      <div class="phase-content">
+        <div class="checklist">
+        <label class="task" data-task="req-feasibility">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">Feasibility prompt felhelyezve</span>
+            
+          </span>
+        </label>
+        <label class="task" data-task="req-security">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">Requirements Security prompt felhelyezve</span>
+            
+          </span>
+        </label>
+        <label class="task" data-task="req-edge">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">Edge Case prompt felhelyezve</span>
+            
+          </span>
+        </label>
+        <label class="task" data-task="req-ux">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">UX/Behavior prompt felhelyezve</span>
+            
+          </span>
+        </label>
+        <label class="task" data-task="req-synth">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">Requirements Synthesizer prompt felhelyezve</span>
+            
+          </span>
+        </label>
+        <label class="task" data-task="architect">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">Architect prompt felhelyezve</span>
+            
+          </span>
+        </label>
+        <label class="task" data-task="planner">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">Planner prompt felhelyezve</span>
+            
+          </span>
+        </label>
+        <label class="task" data-task="implementer">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">Implementer prompt felhelyezve</span>
+            
+          </span>
+        </label>
+        <label class="task" data-task="qa">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">QA prompt felhelyezve</span>
+            
+          </span>
+        </label>
+        <label class="task" data-task="debugger">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">Debugger prompt felhelyezve</span>
+            
+          </span>
+        </label>
+        <label class="task" data-task="reviewer">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">Reviewer prompt felhelyezve</span>
+            
+          </span>
+        </label>
+        <label class="task" data-task="devops">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">DevOps prompt felhelyezve</span>
+            
+          </span>
+        </label>
+        <label class="task" data-task="final-qa">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">Final QA prompt felhelyezve</span>
+            
+          </span>
+        </label>
+        <label class="task" data-task="supervisor">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">Supervisor prompt ellenőrizve</span>
+            
+          </span>
+        </label></div>
+        
+        <div class="subhead">Kezdő promptok / system promptok</div>
+        <div class="prompt-card">
+          <div class="cmd-head"><strong>Requirements Feasibility</strong><button class="copy-btn" data-copy="SYSTEM ROLE
+You are the feasibility analyst. Your job is to determine whether the user&#x27;s requested system is technically achievable.
+
+RULES
+- Never silently change requirements.
+- Separate facts, assumptions, risks and options.
+- Identify dependencies, hard constraints and irreversible decisions.
+- If a requirement is ambiguous, produce a concrete question for the user.
+- Do not approve the project.
+- Do not write production code.
+
+OUTPUT
+1. Feasibility verdict with evidence
+2. Required assumptions
+3. Technical options
+4. Risks / blockers
+5. Questions that MUST be answered before approval">Copy</button></div>
+          <pre><code>SYSTEM ROLE
+You are the feasibility analyst. Your job is to determine whether the user&#x27;s requested system is technically achievable.
+
+RULES
+- Never silently change requirements.
+- Separate facts, assumptions, risks and options.
+- Identify dependencies, hard constraints and irreversible decisions.
+- If a requirement is ambiguous, produce a concrete question for the user.
+- Do not approve the project.
+- Do not write production code.
+
+OUTPUT
+1. Feasibility verdict with evidence
+2. Required assumptions
+3. Technical options
+4. Risks / blockers
+5. Questions that MUST be answered before approval</code></pre>
+        </div>
+        <div class="prompt-card">
+          <div class="cmd-head"><strong>Requirements Security</strong><button class="copy-btn" data-copy="SYSTEM ROLE
+You are the security requirements analyst.
+
+THINK LIKE
+- attacker
+- abuse-case designer
+- privacy reviewer
+- secrets/authentication specialist
+
+RULES
+- Inspect the user&#x27;s requested behavior before proposing implementation.
+- Identify trust boundaries and abuse cases.
+- Do not silently weaken functionality to make it safer.
+- Escalate trade-offs to the user.
+
+OUTPUT
+1. Threats
+2. Abuse cases
+3. Data/security requirements
+4. Mitigations
+5. Open decisions for the user">Copy</button></div>
+          <pre><code>SYSTEM ROLE
+You are the security requirements analyst.
+
+THINK LIKE
+- attacker
+- abuse-case designer
+- privacy reviewer
+- secrets/authentication specialist
+
+RULES
+- Inspect the user&#x27;s requested behavior before proposing implementation.
+- Identify trust boundaries and abuse cases.
+- Do not silently weaken functionality to make it safer.
+- Escalate trade-offs to the user.
+
+OUTPUT
+1. Threats
+2. Abuse cases
+3. Data/security requirements
+4. Mitigations
+5. Open decisions for the user</code></pre>
+        </div>
+        <div class="prompt-card">
+          <div class="cmd-head"><strong>Requirements Edge Cases</strong><button class="copy-btn" data-copy="SYSTEM ROLE
+You are the edge-case and failure-mode analyst.
+
+Attack the requested behavior from the perspective of:
+- malformed input
+- empty input
+- partial failure
+- retries
+- duplication
+- timeouts
+- network interruption
+- concurrent actions
+- resource exhaustion
+- inconsistent state
+- rollback/recovery
+
+Never invent a product decision silently. Turn unresolved behavior into explicit questions.">Copy</button></div>
+          <pre><code>SYSTEM ROLE
+You are the edge-case and failure-mode analyst.
+
+Attack the requested behavior from the perspective of:
+- malformed input
+- empty input
+- partial failure
+- retries
+- duplication
+- timeouts
+- network interruption
+- concurrent actions
+- resource exhaustion
+- inconsistent state
+- rollback/recovery
+
+Never invent a product decision silently. Turn unresolved behavior into explicit questions.</code></pre>
+        </div>
+        <div class="prompt-card">
+          <div class="cmd-head"><strong>Requirements UX / Behavior</strong><button class="copy-btn" data-copy="SYSTEM ROLE
+You are the behavior and UX analyst.
+
+For every important user flow, identify:
+- starting state
+- user action
+- system response
+- success state
+- recoverable failure
+- unrecoverable failure
+- user-visible messages
+- state transitions
+
+Stay inside the approved intent. Do not redesign the product silently.">Copy</button></div>
+          <pre><code>SYSTEM ROLE
+You are the behavior and UX analyst.
+
+For every important user flow, identify:
+- starting state
+- user action
+- system response
+- success state
+- recoverable failure
+- unrecoverable failure
+- user-visible messages
+- state transitions
+
+Stay inside the approved intent. Do not redesign the product silently.</code></pre>
+        </div>
+        <div class="prompt-card">
+          <div class="cmd-head"><strong>Requirements Synthesizer</strong><button class="copy-btn" data-copy="SYSTEM ROLE
+You synthesize the specialist analyses into one precise specification proposal.
+
+INPUTS
+- user request
+- feasibility analysis
+- security analysis
+- edge-case analysis
+- UX analysis
+
+OUTPUT
+- interpreted requirements
+- explicit assumptions
+- non-functional requirements
+- acceptance criteria
+- unresolved contradictions
+- numbered questions for the user
+
+CRITICAL
+The specification is NOT approved until the user explicitly approves it.">Copy</button></div>
+          <pre><code>SYSTEM ROLE
+You synthesize the specialist analyses into one precise specification proposal.
+
+INPUTS
+- user request
+- feasibility analysis
+- security analysis
+- edge-case analysis
+- UX analysis
+
+OUTPUT
+- interpreted requirements
+- explicit assumptions
+- non-functional requirements
+- acceptance criteria
+- unresolved contradictions
+- numbered questions for the user
+
+CRITICAL
+The specification is NOT approved until the user explicitly approves it.</code></pre>
+        </div>
+        <div class="prompt-card">
+          <div class="cmd-head"><strong>Architect</strong><button class="copy-btn" data-copy="SYSTEM ROLE
+You are the system architect.
+
+INPUT
+Only the user-approved specification.
+
+RESPONSIBILITIES
+- choose the technical architecture
+- choose and justify the tech stack
+- define interfaces, storage, security boundaries and deployment model
+- optimize for maintainability, correctness and the stated requirements
+
+CRITICAL
+You MUST NOT alter the approved product requirements.
+When you find a conflict, stop and escalate it back to Requirements/User approval.
+
+OUTPUT
+architecture.md
+tech-stack.md
+database-design.md
+api-spec.md
+security-architecture.md
+deployment-architecture.md
+project-structure.md
+architecture decisions">Copy</button></div>
+          <pre><code>SYSTEM ROLE
+You are the system architect.
+
+INPUT
+Only the user-approved specification.
+
+RESPONSIBILITIES
+- choose the technical architecture
+- choose and justify the tech stack
+- define interfaces, storage, security boundaries and deployment model
+- optimize for maintainability, correctness and the stated requirements
+
+CRITICAL
+You MUST NOT alter the approved product requirements.
+When you find a conflict, stop and escalate it back to Requirements/User approval.
+
+OUTPUT
+architecture.md
+tech-stack.md
+database-design.md
+api-spec.md
+security-architecture.md
+deployment-architecture.md
+project-structure.md
+architecture decisions</code></pre>
+        </div>
+        <div class="prompt-card">
+          <div class="cmd-head"><strong>Planner / Task Decomposer</strong><button class="copy-btn" data-copy="SYSTEM ROLE
+Convert the approved architecture into an executable dependency graph.
+
+For each task provide:
+- exact goal
+- prerequisites
+- inputs
+- files/components likely affected
+- acceptance criteria
+- verification plan
+- optional pseudocode
+
+Optimize tasks so an implementer can finish them with bounded context.
+Never change the specification.">Copy</button></div>
+          <pre><code>SYSTEM ROLE
+Convert the approved architecture into an executable dependency graph.
+
+For each task provide:
+- exact goal
+- prerequisites
+- inputs
+- files/components likely affected
+- acceptance criteria
+- verification plan
+- optional pseudocode
+
+Optimize tasks so an implementer can finish them with bounded context.
+Never change the specification.</code></pre>
+        </div>
+        <div class="prompt-card">
+          <div class="cmd-head"><strong>Implementer</strong><button class="copy-btn" data-copy="SYSTEM ROLE
+You are the implementation engineer.
+
+You work only on the assigned task.
+
+PROCESS
+1. Inspect relevant repository state.
+2. Read architecture and acceptance criteria.
+3. Implement the smallest correct change.
+4. Run deterministic tests.
+5. Fix failures caused by your change.
+6. Leave the worktree clean except intentional changes.
+7. Create/update tests for behavior you changed.
+8. Produce a concise implementation report.
+
+Do not redesign requirements. If architecture is insufficient, report the issue instead of silently changing it.">Copy</button></div>
+          <pre><code>SYSTEM ROLE
+You are the implementation engineer.
+
+You work only on the assigned task.
+
+PROCESS
+1. Inspect relevant repository state.
+2. Read architecture and acceptance criteria.
+3. Implement the smallest correct change.
+4. Run deterministic tests.
+5. Fix failures caused by your change.
+6. Leave the worktree clean except intentional changes.
+7. Create/update tests for behavior you changed.
+8. Produce a concise implementation report.
+
+Do not redesign requirements. If architecture is insufficient, report the issue instead of silently changing it.</code></pre>
+        </div>
+        <div class="prompt-card">
+          <div class="cmd-head"><strong>QA / Security / User Simulation</strong><button class="copy-btn" data-copy="SYSTEM ROLE
+You are an independent verification engineer. Assume the implementation may be wrong.
+
+You MUST test from three angles:
+1. functional correctness
+2. user-visible behavior
+3. failure/security behavior
+
+Use deterministic tools first, then agentic exploration.
+
+Create:
+- test-plan.md
+- test-results.md
+- failures.md
+- reproduction steps
+- screenshots/logs where useful
+
+Never mark PASS because the implementation looks plausible.
+PASS requires evidence.">Copy</button></div>
+          <pre><code>SYSTEM ROLE
+You are an independent verification engineer. Assume the implementation may be wrong.
+
+You MUST test from three angles:
+1. functional correctness
+2. user-visible behavior
+3. failure/security behavior
+
+Use deterministic tools first, then agentic exploration.
+
+Create:
+- test-plan.md
+- test-results.md
+- failures.md
+- reproduction steps
+- screenshots/logs where useful
+
+Never mark PASS because the implementation looks plausible.
+PASS requires evidence.</code></pre>
+        </div>
+        <div class="prompt-card">
+          <div class="cmd-head"><strong>Debugger</strong><button class="copy-btn" data-copy="SYSTEM ROLE
+You repair failures, not symptoms.
+
+INPUT
+- failing test/report
+- logs
+- stack traces
+- screenshots
+- relevant source
+- acceptance criteria
+
+PROCESS
+1. Reproduce
+2. Identify root cause
+3. Make the smallest correct fix
+4. Add or update a regression test
+5. Re-run affected and relevant broader tests
+6. Report root cause and evidence
+
+Do not turn a failing test into a weaker test just to obtain PASS.">Copy</button></div>
+          <pre><code>SYSTEM ROLE
+You repair failures, not symptoms.
+
+INPUT
+- failing test/report
+- logs
+- stack traces
+- screenshots
+- relevant source
+- acceptance criteria
+
+PROCESS
+1. Reproduce
+2. Identify root cause
+3. Make the smallest correct fix
+4. Add or update a regression test
+5. Re-run affected and relevant broader tests
+6. Report root cause and evidence
+
+Do not turn a failing test into a weaker test just to obtain PASS.</code></pre>
+        </div>
+        <div class="prompt-card">
+          <div class="cmd-head"><strong>Code Reviewer</strong><button class="copy-btn" data-copy="SYSTEM ROLE
+You are an independent code reviewer.
+
+Answer:
+- Does the code implement the approved architecture?
+- Is it maintainable?
+- Are error paths handled?
+- Are there security concerns?
+- Are there duplicated or inconsistent abstractions?
+- Are tests adequate?
+- Are changes larger than necessary?
+
+Do not approve on intuition. Cite evidence in files/tests/diffs.">Copy</button></div>
+          <pre><code>SYSTEM ROLE
+You are an independent code reviewer.
+
+Answer:
+- Does the code implement the approved architecture?
+- Is it maintainable?
+- Are error paths handled?
+- Are there security concerns?
+- Are there duplicated or inconsistent abstractions?
+- Are tests adequate?
+- Are changes larger than necessary?
+
+Do not approve on intuition. Cite evidence in files/tests/diffs.</code></pre>
+        </div>
+        <div class="prompt-card">
+          <div class="cmd-head"><strong>DevOps</strong><button class="copy-btn" data-copy="SYSTEM ROLE
+You are responsible for making the approved application reproducible and deployable.
+
+You may:
+- create/update deployment files
+- build containers
+- provision the project&#x27;s dedicated Proxmox VM through the restricted gateway
+- configure application services
+- run migrations
+- verify health checks
+- collect deployment diagnostics
+
+You must NOT:
+- alter product requirements
+- access unrelated VMs
+- access Proxmox host shell
+- expose secrets in logs
+- weaken firewall/security controls
+
+Deployment is PASS only with evidence from health checks and smoke tests.">Copy</button></div>
+          <pre><code>SYSTEM ROLE
+You are responsible for making the approved application reproducible and deployable.
+
+You may:
+- create/update deployment files
+- build containers
+- provision the project&#x27;s dedicated Proxmox VM through the restricted gateway
+- configure application services
+- run migrations
+- verify health checks
+- collect deployment diagnostics
+
+You must NOT:
+- alter product requirements
+- access unrelated VMs
+- access Proxmox host shell
+- expose secrets in logs
+- weaken firewall/security controls
+
+Deployment is PASS only with evidence from health checks and smoke tests.</code></pre>
+        </div>
+        <div class="prompt-card">
+          <div class="cmd-head"><strong>Final QA</strong><button class="copy-btn" data-copy="SYSTEM ROLE
+You are the final acceptance verifier.
+
+INPUT
+- original user-approved requirements
+- final repository
+- deployed environment
+- full QA history
+- final review results
+
+Act as a fresh reviewer. Do not trust previous PASS claims.
+
+For every acceptance criterion:
+PASS / FAIL / BLOCKED
+
+Then test:
+- critical user journeys
+- failure recovery
+- security boundaries
+- deployment health
+- data persistence
+- regression suite
+
+DONE is allowed only when every mandatory acceptance criterion is PASS.">Copy</button></div>
+          <pre><code>SYSTEM ROLE
+You are the final acceptance verifier.
+
+INPUT
+- original user-approved requirements
+- final repository
+- deployed environment
+- full QA history
+- final review results
+
+Act as a fresh reviewer. Do not trust previous PASS claims.
+
+For every acceptance criterion:
+PASS / FAIL / BLOCKED
+
+Then test:
+- critical user journeys
+- failure recovery
+- security boundaries
+- deployment health
+- data persistence
+- regression suite
+
+DONE is allowed only when every mandatory acceptance criterion is PASS.</code></pre>
+        </div>
+        <div class="prompt-card">
+          <div class="cmd-head"><strong>Supervisor</strong><button class="copy-btn" data-copy="SYSTEM ROLE
+You are the workflow supervisor, not the programmer.
+
+Your job:
+- inspect persistent project state
+- decide the next allowed pipeline stage
+- route failed work to Debugger
+- route review failures back to implementation/debugging
+- stop for mandatory human approval
+- stop on contradictory requirements
+- never invent evidence
+- never turn FAIL into PASS
+- never modify production code yourself
+- never bypass security or approval gates
+
+Treat the workflow as a finite state machine.
+
+Allowed transitions are controlled by the orchestrator.
+Your answer must be a structured routing decision, not a coding solution.">Copy</button></div>
+          <pre><code>SYSTEM ROLE
+You are the workflow supervisor, not the programmer.
+
+Your job:
+- inspect persistent project state
+- decide the next allowed pipeline stage
+- route failed work to Debugger
+- route review failures back to implementation/debugging
+- stop for mandatory human approval
+- stop on contradictory requirements
+- never invent evidence
+- never turn FAIL into PASS
+- never modify production code yourself
+- never bypass security or approval gates
+
+Treat the workflow as a finite state machine.
+
+Allowed transitions are controlled by the orchestrator.
+Your answer must be a structured routing decision, not a coding solution.</code></pre>
+        </div>
+        
+        <div class="phase-footer">
+          <label class="evidence"><span>Megjegyzés / bizonyíték:</span><textarea placeholder="Pl. milyen tesztet futtattál, milyen outputot kaptál, melyik IP/commit/driver verzió..."></textarea></label>
+          <button class="unlock-btn">Szakasz kész → következő feloldása</button>
+        </div>
+      </div>
+    </section>
+    <section class="phase locked" id="phase-16" data-phase="16">
+      <div class="phase-header">
+        <div>
+          <div class="phase-kicker">PHASE 16</div>
+          <h2>16 · Proxmox biztonságos előkészítés</h2>
+          <p>A DevOps agent csak a dedikált AI project poolt és a gateway által engedélyezett VM-műveleteket kapja.</p>
+        </div>
+        <div class="phase-status"><span class="status-dot"></span><span class="status-text">ZÁRVA</span></div>
+      </div>
+      <div class="phase-content">
+        <div class="checklist">
+        <label class="task" data-task="pool">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">AI project resource pool létrehozva</span>
+            
+          </span>
+        </label>
+        <label class="task" data-task="user">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">Dedicated Proxmox user létrehozva</span>
+            
+          </span>
+        </label>
+        <label class="task" data-task="token">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">API token létrehozva</span>
+            
+          </span>
+        </label>
+        <label class="task" data-task="role">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">Jogosultság a project poolra korlátozva</span>
+            
+          </span>
+        </label>
+        <label class="task" data-task="gateway">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">Proxmox gateway token konfigurálva</span>
+            
+          </span>
+        </label>
+        <label class="task" data-task="guest-agent">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">Project VM template-ben QEMU Guest Agent telepítve</span>
+            
+          </span>
+        </label>
+        <label class="task" data-task="snapshot">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">Snapshot/rollback művelet tesztelve</span>
+            
+          </span>
+        </label>
+        <label class="task" data-task="vm-create">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">Teszt VM létrehozható</span>
+            
+          </span>
+        </label>
+        <label class="task" data-task="vm-command">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">Gatewayből csak a projekt VM-ben fut command</span>
+            
+          </span>
+        </label></div>
+        <div class="subhead">Parancsok</div>
+        <div class="cmd-card">
+          <div class="cmd-head"><strong>Proxmox API teszt – hostról</strong><button class="copy-btn" data-copy="pvesh get /cluster/resources --type vm">Copy</button></div>
+          <pre><code>pvesh get /cluster/resources --type vm</code></pre>
+        </div>
+        <div class="cmd-card">
+          <div class="cmd-head"><strong>AI pool ellenőrzés</strong><button class="copy-btn" data-copy="pvesh get /pool/AI-PROJECTS">Copy</button></div>
+          <pre><code>pvesh get /pool/AI-PROJECTS</code></pre>
+        </div>
+        <div class="cmd-card">
+          <div class="cmd-head"><strong>Debian/Ubuntu guestben</strong><button class="copy-btn" data-copy="sudo apt update &amp;&amp; sudo apt install -y qemu-guest-agent
+sudo systemctl enable --now qemu-guest-agent">Copy</button></div>
+          <pre><code>sudo apt update &amp;&amp; sudo apt install -y qemu-guest-agent
+sudo systemctl enable --now qemu-guest-agent</code></pre>
+        </div>
+        <div class="cmd-card">
+          <div class="cmd-head"><strong>Gateway health</strong><button class="copy-btn" data-copy="curl -fsS http://127.0.0.1:9100/health">Copy</button></div>
+          <pre><code>curl -fsS http://127.0.0.1:9100/health</code></pre>
+        </div>
+        <div class="cmd-card">
+          <div class="cmd-head"><strong>Gateway docs</strong><button class="copy-btn" data-copy="curl -I http://127.0.0.1:9100/docs">Copy</button></div>
+          <pre><code>curl -I http://127.0.0.1:9100/docs</code></pre>
+        </div>
+        
+        
+        <div class="phase-footer">
+          <label class="evidence"><span>Megjegyzés / bizonyíték:</span><textarea placeholder="Pl. milyen tesztet futtattál, milyen outputot kaptál, melyik IP/commit/driver verzió..."></textarea></label>
+          <button class="unlock-btn">Szakasz kész → következő feloldása</button>
+        </div>
+      </div>
+    </section>
+    <section class="phase locked" id="phase-17" data-phase="17">
+      <div class="phase-header">
+        <div>
+          <div class="phase-kicker">PHASE 17</div>
+          <h2>17 · LangGraph workflow bekötése</h2>
+          <p>Itt lesz a tényleges állapotgép: human approval, retry, loopok, task dependencies és checkpointok.</p>
+        </div>
+        <div class="phase-status"><span class="status-dot"></span><span class="status-text">ZÁRVA</span></div>
+      </div>
+      <div class="phase-content">
+        <div class="checklist">
+        <label class="task" data-task="graph">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">LangGraph graph compile</span>
+            
+          </span>
+        </label>
+        <label class="task" data-task="state">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">Per-project persistent state működik</span>
+            
+          </span>
+        </label>
+        <label class="task" data-task="checkpoints">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">Postgres checkpoint működik</span>
+            
+          </span>
+        </label>
+        <label class="task" data-task="approval">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">USER APPROVAL valóban blokkolja a graphot</span>
+            
+          </span>
+        </label>
+        <label class="task" data-task="retry">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">QA FAIL → Debugger → QA loop működik</span>
+            
+          </span>
+        </label>
+        <label class="task" data-task="review-loop">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">Reviewer FAIL → Debugger/Implementer → QA → Reviewer működik</span>
+            
+          </span>
+        </label>
+        <label class="task" data-task="task-loop">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">Task dependency queue működik</span>
+            
+          </span>
+        </label>
+        <label class="task" data-task="done">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">Final QA PASS → DONE működik</span>
+            
+          </span>
+        </label></div>
+        <div class="subhead">Parancsok</div>
+        <div class="cmd-card">
+          <div class="cmd-head"><strong>Dependencies</strong><button class="copy-btn" data-copy="cd /srv/ai/services/orchestrator &amp;&amp; uv sync">Copy</button></div>
+          <pre><code>cd /srv/ai/services/orchestrator &amp;&amp; uv sync</code></pre>
+        </div>
+        <div class="cmd-card">
+          <div class="cmd-head"><strong>LangGraph/Postgres csomagok</strong><button class="copy-btn" data-copy="uv add langgraph langgraph-checkpoint-postgres &#x27;psycopg[binary,pool]&#x27;">Copy</button></div>
+          <pre><code>uv add langgraph langgraph-checkpoint-postgres &#x27;psycopg[binary,pool]&#x27;</code></pre>
+        </div>
+        <div class="cmd-card">
+          <div class="cmd-head"><strong>Syntax</strong><button class="copy-btn" data-copy="python -m compileall -q /srv/ai/services/orchestrator/app">Copy</button></div>
+          <pre><code>python -m compileall -q /srv/ai/services/orchestrator/app</code></pre>
+        </div>
+        <div class="cmd-card">
+          <div class="cmd-head"><strong>Unit tests</strong><button class="copy-btn" data-copy="cd /srv/ai/services/orchestrator &amp;&amp; uv run pytest -q">Copy</button></div>
+          <pre><code>cd /srv/ai/services/orchestrator &amp;&amp; uv run pytest -q</code></pre>
+        </div>
+        
+        <div class="sources"><strong>Hivatalos / referencia:</strong> <a href="https://github.com/langchain-ai/docs/blob/main/src/oss/langgraph/checkpointers.mdx" target="_blank" rel="noopener">LangGraph checkpointers</a></div>
+        <div class="phase-footer">
+          <label class="evidence"><span>Megjegyzés / bizonyíték:</span><textarea placeholder="Pl. milyen tesztet futtattál, milyen outputot kaptál, melyik IP/commit/driver verzió..."></textarea></label>
+          <button class="unlock-btn">Szakasz kész → következő feloldása</button>
+        </div>
+      </div>
+    </section>
+    <section class="phase locked" id="phase-18" data-phase="18">
+      <div class="phase-header">
+        <div>
+          <div class="phase-kicker">PHASE 18</div>
+          <h2>18 · Control Plane + UI</h2>
+          <p>A böngészőből itt indítod a projektet, hagyod jóvá a specifikációt és látod a pipeline állapotát.</p>
+        </div>
+        <div class="phase-status"><span class="status-dot"></span><span class="status-text">ZÁRVA</span></div>
+      </div>
+      <div class="phase-content">
+        <div class="checklist">
+        <label class="task" data-task="api">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">FastAPI control plane fut</span>
+            
+          </span>
+        </label>
+        <label class="task" data-task="ui">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">Browser UI megnyílik</span>
+            
+          </span>
+        </label>
+        <label class="task" data-task="create">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">Új project létrehozható</span>
+            
+          </span>
+        </label>
+        <label class="task" data-task="approve">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">Requirements approval UI működik</span>
+            
+          </span>
+        </label>
+        <label class="task" data-task="status">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">Pipeline státusz látható</span>
+            
+          </span>
+        </label>
+        <label class="task" data-task="logs">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">Agent/workflow logok elérhetők</span>
+            
+          </span>
+        </label></div>
+        <div class="subhead">Parancsok</div>
+        <div class="cmd-card">
+          <div class="cmd-head"><strong>Control plane</strong><button class="copy-btn" data-copy="cd /srv/ai/services/control-plane &amp;&amp; uv sync">Copy</button></div>
+          <pre><code>cd /srv/ai/services/control-plane &amp;&amp; uv sync</code></pre>
+        </div>
+        <div class="cmd-card">
+          <div class="cmd-head"><strong>Dev indítás</strong><button class="copy-btn" data-copy="cd /srv/ai/services/control-plane &amp;&amp; uv run uvicorn app.main:app --host 127.0.0.1 --port 3000">Copy</button></div>
+          <pre><code>cd /srv/ai/services/control-plane &amp;&amp; uv run uvicorn app.main:app --host 127.0.0.1 --port 3000</code></pre>
+        </div>
+        <div class="cmd-card">
+          <div class="cmd-head"><strong>Health</strong><button class="copy-btn" data-copy="curl -fsS http://127.0.0.1:3000/health">Copy</button></div>
+          <pre><code>curl -fsS http://127.0.0.1:3000/health</code></pre>
+        </div>
+        
+        
+        <div class="phase-footer">
+          <label class="evidence"><span>Megjegyzés / bizonyíték:</span><textarea placeholder="Pl. milyen tesztet futtattál, milyen outputot kaptál, melyik IP/commit/driver verzió..."></textarea></label>
+          <button class="unlock-btn">Szakasz kész → következő feloldása</button>
+        </div>
+      </div>
+    </section>
+    <section class="phase locked" id="phase-19" data-phase="19">
+      <div class="phase-header">
+        <div>
+          <div class="phase-kicker">PHASE 19</div>
+          <h2>19 · Teljes rendszerindítás</h2>
+          <p>Ezen a ponton áll össze a teljes szolgáltatáslánc.</p>
+        </div>
+        <div class="phase-status"><span class="status-dot"></span><span class="status-text">ZÁRVA</span></div>
+      </div>
+      <div class="phase-content">
+        <div class="checklist">
+        <label class="task" data-task="data">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">Postgres + Qdrant fut</span>
+            
+          </span>
+        </label>
+        <label class="task" data-task="supervisor">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">Supervisor LLM szolgáltatás fut</span>
+            
+          </span>
+        </label>
+        <label class="task" data-task="manager">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">Model manager fut</span>
+            
+          </span>
+        </label>
+        <label class="task" data-task="control">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">Control plane fut</span>
+            
+          </span>
+        </label>
+        <label class="task" data-task="gateway">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">Proxmox gateway fut</span>
+            
+          </span>
+        </label>
+        <label class="task" data-task="network">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">LLM portok LAN felől nem elérhetők</span>
+            
+          </span>
+        </label>
+        <label class="task" data-task="model-main">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">Main model load/unload működik</span>
+            
+          </span>
+        </label>
+        <label class="task" data-task="model-qa">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">QA model load/unload működik</span>
+            
+          </span>
+        </label></div>
+        <div class="subhead">Parancsok</div>
+        <div class="cmd-card">
+          <div class="cmd-head"><strong>Data services</strong><button class="copy-btn" data-copy="cd /srv/ai &amp;&amp; docker compose up -d postgres qdrant">Copy</button></div>
+          <pre><code>cd /srv/ai &amp;&amp; docker compose up -d postgres qdrant</code></pre>
+        </div>
+        <div class="cmd-card">
+          <div class="cmd-head"><strong>Host service-ek</strong><button class="copy-btn" data-copy="sudo systemctl enable --now ai-supervisor-llm.service ai-model-manager.service ai-control-plane.service ai-proxmox-gateway.service">Copy</button></div>
+          <pre><code>sudo systemctl enable --now ai-supervisor-llm.service ai-model-manager.service ai-control-plane.service ai-proxmox-gateway.service</code></pre>
+        </div>
+        <div class="cmd-card">
+          <div class="cmd-head"><strong>Állapot</strong><button class="copy-btn" data-copy="systemctl --no-pager --full status ai-supervisor-llm.service ai-model-manager.service ai-control-plane.service ai-proxmox-gateway.service">Copy</button></div>
+          <pre><code>systemctl --no-pager --full status ai-supervisor-llm.service ai-model-manager.service ai-control-plane.service ai-proxmox-gateway.service</code></pre>
+        </div>
+        <div class="cmd-card">
+          <div class="cmd-head"><strong>Egységes verify</strong><button class="copy-btn" data-copy="cd /srv/ai &amp;&amp; sudo ./scripts/verify-part2.sh">Copy</button></div>
+          <pre><code>cd /srv/ai &amp;&amp; sudo ./scripts/verify-part2.sh</code></pre>
+        </div>
+        <div class="cmd-card">
+          <div class="cmd-head"><strong>Firewall</strong><button class="copy-btn" data-copy="sudo ufw status numbered">Copy</button></div>
+          <pre><code>sudo ufw status numbered</code></pre>
+        </div>
+        
+        
+        <div class="phase-footer">
+          <label class="evidence"><span>Megjegyzés / bizonyíték:</span><textarea placeholder="Pl. milyen tesztet futtattál, milyen outputot kaptál, melyik IP/commit/driver verzió..."></textarea></label>
+          <button class="unlock-btn">Szakasz kész → következő feloldása</button>
+        </div>
+      </div>
+    </section>
+    <section class="phase locked" id="phase-20" data-phase="20">
+      <div class="phase-header">
+        <div>
+          <div class="phase-kicker">PHASE 20</div>
+          <h2>20 · Első end-to-end tesztprojekt</h2>
+          <p>Első projekt legyen kicsi, de a teljes pipeline fusson végig rajta.</p>
+        </div>
+        <div class="phase-status"><span class="status-dot"></span><span class="status-text">ZÁRVA</span></div>
+      </div>
+      <div class="phase-content">
+        <div class="checklist">
+        <label class="task" data-task="brief">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">Kis projektleírás megadva</span>
+            
+          </span>
+        </label>
+        <label class="task" data-task="questions">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">Requirements Board visszakérdezései megválaszolva</span>
+            
+          </span>
+        </label>
+        <label class="task" data-task="approval">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">Specifikáció explicit jóváhagyva</span>
+            
+          </span>
+        </label>
+        <label class="task" data-task="architecture">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">Architecture elkészült</span>
+            
+          </span>
+        </label>
+        <label class="task" data-task="plan">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">Task graph elkészült</span>
+            
+          </span>
+        </label>
+        <label class="task" data-task="implementation">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">Legalább egy implementációs task kész</span>
+            
+          </span>
+        </label>
+        <label class="task" data-task="qa">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">QA report készült</span>
+            
+          </span>
+        </label>
+        <label class="task" data-task="debug">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">Ha volt hiba, debugger fix + regression test</span>
+            
+          </span>
+        </label>
+        <label class="task" data-task="review">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">Code review PASS</span>
+            
+          </span>
+        </label>
+        <label class="task" data-task="deploy">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">Teszt deployment PASS</span>
+            
+          </span>
+        </label>
+        <label class="task" data-task="finalqa">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">Final QA PASS</span>
+            
+          </span>
+        </label>
+        <label class="task" data-task="done">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">Supervisor DONE állapotba lépett</span>
+            
+          </span>
+        </label></div>
+        
+        <div class="subhead">Kezdő promptok / system promptok</div>
+        <div class="prompt-card">
+          <div class="cmd-head"><strong>Első smoke-test projekt</strong><button class="copy-btn" data-copy="Build a small Python CLI that validates a JSON document against a clearly defined schema and produces human-readable validation errors.
+
+Requirements are intentionally simple:
+- command-line interface
+- input JSON file
+- schema validation
+- useful errors with paths
+- exit codes for success/failure
+- automated tests
+- README
+- no network dependency
+
+The goal is NOT feature complexity. The goal is to prove the full workflow:
+Requirements → approval → architecture → plan → implementation → QA → review → final QA.">Copy</button></div>
+          <pre><code>Build a small Python CLI that validates a JSON document against a clearly defined schema and produces human-readable validation errors.
+
+Requirements are intentionally simple:
+- command-line interface
+- input JSON file
+- schema validation
+- useful errors with paths
+- exit codes for success/failure
+- automated tests
+- README
+- no network dependency
+
+The goal is NOT feature complexity. The goal is to prove the full workflow:
+Requirements → approval → architecture → plan → implementation → QA → review → final QA.</code></pre>
+        </div>
+        
+        <div class="phase-footer">
+          <label class="evidence"><span>Megjegyzés / bizonyíték:</span><textarea placeholder="Pl. milyen tesztet futtattál, milyen outputot kaptál, melyik IP/commit/driver verzió..."></textarea></label>
+          <button class="unlock-btn">Szakasz kész → következő feloldása</button>
+        </div>
+      </div>
+    </section>
+    <section class="phase locked" id="phase-21" data-phase="21">
+      <div class="phase-header">
+        <div>
+          <div class="phase-kicker">PHASE 21</div>
+          <h2>21 · Élesítés előtti végső audit</h2>
+          <p>Csak akkor induljon hosszú, többórás autonóm fejlesztés, ha az alapplatform bizonyított.</p>
+        </div>
+        <div class="phase-status"><span class="status-dot"></span><span class="status-text">ZÁRVA</span></div>
+      </div>
+      <div class="phase-content">
+        <div class="checklist">
+        <label class="task" data-task="reboot">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">Teljes reboot után a platform újraindul</span>
+            
+          </span>
+        </label>
+        <label class="task" data-task="gpu">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">GPU + llama.cpp reboot után működik</span>
+            
+          </span>
+        </label>
+        <label class="task" data-task="data">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">Postgres/Qdrant adatok megmaradnak</span>
+            
+          </span>
+        </label>
+        <label class="task" data-task="workflow-resume">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">Félbehagyott workflow újraindítható</span>
+            
+          </span>
+        </label>
+        <label class="task" data-task="approval">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">Human approval reboot után is megmarad</span>
+            
+          </span>
+        </label>
+        <label class="task" data-task="git">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">Task checkpointek visszaállíthatók</span>
+            
+          </span>
+        </label>
+        <label class="task" data-task="backup">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">Backup/restore teszt megtörtént</span>
+            
+          </span>
+        </label>
+        <label class="task" data-task="proxmox">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">Proxmox gateway csak a kijelölt poolra képes</span>
+            
+          </span>
+        </label>
+        <label class="task" data-task="sandbox">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">Agent containerben nincs Docker socket</span>
+            
+          </span>
+        </label>
+        <label class="task" data-task="firewall">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">LLM / DB / Qdrant portok nem publikusak</span>
+            
+          </span>
+        </label>
+        <label class="task" data-task="long-run">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">Legalább egy többórás tesztfutás sikeres</span>
+            
+          </span>
+        </label></div>
+        <div class="subhead">Parancsok</div>
+        <div class="cmd-card">
+          <div class="cmd-head"><strong>Reboot teszt</strong><button class="copy-btn" data-copy="sudo reboot">Copy</button></div>
+          <pre><code>sudo reboot</code></pre>
+        </div>
+        <div class="cmd-card">
+          <div class="cmd-head"><strong>Utóellenőrzés</strong><button class="copy-btn" data-copy="nvidia-smi
+systemctl --failed
+cd /srv/ai &amp;&amp; sudo ./scripts/verify-part2.sh">Copy</button></div>
+          <pre><code>nvidia-smi
+systemctl --failed
+cd /srv/ai &amp;&amp; sudo ./scripts/verify-part2.sh</code></pre>
+        </div>
+        <div class="cmd-card">
+          <div class="cmd-head"><strong>Docker</strong><button class="copy-btn" data-copy="docker compose ps">Copy</button></div>
+          <pre><code>docker compose ps</code></pre>
+        </div>
+        <div class="cmd-card">
+          <div class="cmd-head"><strong>Socket ellenőrzés</strong><button class="copy-btn" data-copy="docker inspect &lt;AGENT_CONTAINER&gt; --format &#x27;{{json .Mounts}}&#x27; | jq">Copy</button></div>
+          <pre><code>docker inspect &lt;AGENT_CONTAINER&gt; --format &#x27;{{json .Mounts}}&#x27; | jq</code></pre>
+        </div>
+        
+        
+        <div class="phase-footer">
+          <label class="evidence"><span>Megjegyzés / bizonyíték:</span><textarea placeholder="Pl. milyen tesztet futtattál, milyen outputot kaptál, melyik IP/commit/driver verzió..."></textarea></label>
+          <button class="unlock-btn">Szakasz kész → következő feloldása</button>
+        </div>
+      </div>
+    </section>
+    <section class="phase locked" id="phase-22" data-phase="22">
+      <div class="phase-header">
+        <div>
+          <div class="phase-kicker">PHASE 22</div>
+          <h2>22 · Hosszú távú üzemeltetés</h2>
+          <p>A rendszer akkor jó, ha hónapok múlva is reprodukálható.</p>
+        </div>
+        <div class="phase-status"><span class="status-dot"></span><span class="status-text">ZÁRVA</span></div>
+      </div>
+      <div class="phase-content">
+        <div class="checklist">
+        <label class="task" data-task="version-lock">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">llama.cpp commit rögzítve</span>
+            
+          </span>
+        </label>
+        <label class="task" data-task="driver-lock">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">NVIDIA driver verzió feljegyezve</span>
+            
+          </span>
+        </label>
+        <label class="task" data-task="model-lock">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">GGUF SHA256 checksum mentve</span>
+            
+          </span>
+        </label>
+        <label class="task" data-task="repo-lock">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">Platform repo Git commit mentve</span>
+            
+          </span>
+        </label>
+        <label class="task" data-task="backup-schedule">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">Napi backup működik</span>
+            
+          </span>
+        </label>
+        <label class="task" data-task="logs">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">Log retention beállítva</span>
+            
+          </span>
+        </label>
+        <label class="task" data-task="updates">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">Frissítési folyamat documented</span>
+            
+          </span>
+        </label>
+        <label class="task" data-task="restore">
+          <input type="checkbox" />
+          <span class="task-body">
+            <span class="task-title">Restore runbook dokumentálva</span>
+            
+          </span>
+        </label></div>
+        <div class="subhead">Parancsok</div>
+        <div class="cmd-card">
+          <div class="cmd-head"><strong>GGUF checksum</strong><button class="copy-btn" data-copy="sha256sum /srv/ai/models/*.gguf | tee /mnt/ai-archive/models.sha256">Copy</button></div>
+          <pre><code>sha256sum /srv/ai/models/*.gguf | tee /mnt/ai-archive/models.sha256</code></pre>
+        </div>
+        <div class="cmd-card">
+          <div class="cmd-head"><strong>GPU/driver info</strong><button class="copy-btn" data-copy="nvidia-smi | tee /mnt/ai-archive/nvidia-smi.txt">Copy</button></div>
+          <pre><code>nvidia-smi | tee /mnt/ai-archive/nvidia-smi.txt</code></pre>
+        </div>
+        <div class="cmd-card">
+          <div class="cmd-head"><strong>llama commit</strong><button class="copy-btn" data-copy="git -C /opt/llama.cpp rev-parse HEAD | tee /mnt/ai-archive/llama.cpp.commit">Copy</button></div>
+          <pre><code>git -C /opt/llama.cpp rev-parse HEAD | tee /mnt/ai-archive/llama.cpp.commit</code></pre>
+        </div>
+        <div class="cmd-card">
+          <div class="cmd-head"><strong>Platform commit</strong><button class="copy-btn" data-copy="git -C /srv/ai rev-parse HEAD | tee /mnt/ai-archive/platform.commit">Copy</button></div>
+          <pre><code>git -C /srv/ai rev-parse HEAD | tee /mnt/ai-archive/platform.commit</code></pre>
+        </div>
+        
+        
+        <div class="phase-footer">
+          <label class="evidence"><span>Megjegyzés / bizonyíték:</span><textarea placeholder="Pl. milyen tesztet futtattál, milyen outputot kaptál, melyik IP/commit/driver verzió..."></textarea></label>
+          <button class="unlock-btn">Szakasz kész → következő feloldása</button>
+        </div>
+      </div>
+    </section>
+    </main>
+    <aside class="side">
+      <div class="card">
+        <input class="search" id="search" placeholder="Keresés a checklistben…">
+      </div>
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+          <strong>Összesített haladás</strong>
+          <span id="pct">0%</span>
+        </div>
+        <div class="progress"><div id="bar"></div></div>
+        <div class="stat"><span>Szakaszok</span><span id="phaseCount">0 / 22</span></div>
+        <div class="stat"><span>Feladatok</span><span id="taskCount">0 / 0</span></div>
+      </div>
+      <div class="card nav">
+        <strong>Szakaszok</strong>
+        <a href="#phase-1">→ 01 · Hardver beszerzés és ellenőrzés</a><a href="#phase-2">→ 02 · Fizikai összeszerelés és BIOS</a><a href="#phase-3">→ 03 · Ubuntu Server 24.04 LTS telepítés</a><a href="#phase-4">→ 04 · Alap Linux környezet és könyvtárstruktúra</a><a href="#phase-5">→ 05 · HDD felcsatolás és tárhely</a><a href="#phase-6">→ 06 · Docker Engine</a><a href="#phase-7">→ 07 · NVIDIA driver + Container Toolkit</a><a href="#phase-8">→ 08 · llama.cpp CUDA runtime</a><a href="#phase-9">→ 09 · Modellek beszerzése és első kézi teszt</a><a href="#phase-10">→ 10 · Platform repository telepítése</a><a href="#phase-11">→ 11 · PostgreSQL + Qdrant + platform state</a><a href="#phase-12">→ 12 · OpenHands agent runtime + sandbox</a><a href="#phase-13">→ 13 · Böngésző QA + Playwright</a><a href="#phase-14">→ 14 · Determinisztikus QA / security tooling</a><a href="#phase-15">→ 15 · Agent promptok felhelyezése</a><a href="#phase-16">→ 16 · Proxmox biztonságos előkészítés</a><a href="#phase-17">→ 17 · LangGraph workflow bekötése</a><a href="#phase-18">→ 18 · Control Plane + UI</a><a href="#phase-19">→ 19 · Teljes rendszerindítás</a><a href="#phase-20">→ 20 · Első end-to-end tesztprojekt</a><a href="#phase-21">→ 21 · Élesítés előtti végső audit</a><a href="#phase-22">→ 22 · Hosszú távú üzemeltetés</a>
+      </div>
+      <div class="card small">
+        <strong>Companion repo</strong><br><br>
+        Ezt a checklistet a korábban elkészített <code>ai-software-engineering-platform-v1-final.zip</code> projekttel együtt használd. A repo saját scriptjei a későbbi szakaszokban is referenciaként szerepelnek.
+      </div>
+      <div class="card small">
+        <strong>Források</strong><br><br>
+        <div style="margin:5px 0"><a href="https://ubuntu.com/server/docs/" target="_blank" rel="noopener">Ubuntu</a></div><div style="margin:5px 0"><a href="https://docs.docker.com/engine/install/ubuntu/" target="_blank" rel="noopener">Docker Engine on Ubuntu</a></div><div style="margin:5px 0"><a href="https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html" target="_blank" rel="noopener">NVIDIA Container Toolkit</a></div><div style="margin:5px 0"><a href="https://github.com/ggml-org/llama.cpp/blob/master/docs/build.md" target="_blank" rel="noopener">llama.cpp build</a></div><div style="margin:5px 0"><a href="https://github.com/OpenHands/docs/blob/main/sdk/arch/agent-server.mdx" target="_blank" rel="noopener">OpenHands Agent Server</a></div><div style="margin:5px 0"><a href="https://github.com/langchain-ai/docs/blob/main/src/oss/langgraph/checkpointers.mdx" target="_blank" rel="noopener">LangGraph Checkpointers</a></div><div style="margin:5px 0"><a href="https://qdrant.tech/documentation/quickstart/" target="_blank" rel="noopener">Qdrant quickstart</a></div><div style="margin:5px 0"><a href="https://playwright.dev/mcp/installation" target="_blank" rel="noopener">Playwright MCP</a></div><div style="margin:5px 0"><a href="https://huggingface.co/ggml-org/Qwen3.6-35B-A3B-GGUF" target="_blank" rel="noopener">Qwen3.6-35B-A3B GGUF</a></div><div style="margin:5px 0"><a href="https://huggingface.co/lmstudio-community/Devstral-Small-2-24B-Instruct-2512-GGUF" target="_blank" rel="noopener">Devstral Small 2 GGUF</a></div><div style="margin:5px 0"><a href="https://huggingface.co/unsloth/Qwen3.5-9B-GGUF" target="_blank" rel="noopener">Qwen3.5-9B GGUF</a></div><div style="margin:5px 0"><a href="https://pve.proxmox.com/pve-docs/pve-admin-guide.html" target="_blank" rel="noopener">Proxmox VE Admin Guide</a></div>
+      </div>
+    </aside>
+  </div>
+</div>
+
+<script>
+const KEY = 'ai-platform-checklist-v1';
+const state = JSON.parse(localStorage.getItem(KEY) || '{"tasks":{},"notes":{}}');
+function save() { localStorage.setItem(KEY, JSON.stringify(state)); update(); }
+function allTasks(phase) { return [...phase.querySelectorAll('.task input')]; }
+function phaseComplete(phase) {
+  const boxes = allTasks(phase);
+  return boxes.length > 0 && boxes.every(b => b.checked);
+}
+function unlocked(idx) {
+  if (idx === 0) return true;
+  const prev = document.querySelector('.phase[data-phase="' + idx + '"]');
+  return prev && phaseComplete(prev);
+}
+function hydrate() {
+  document.querySelectorAll('.task').forEach(t => {
+    const key = t.closest('.phase').dataset.phase + ':' + t.dataset.task;
+    t.querySelector('input').checked = !!state.tasks[key];
+  });
+  document.querySelectorAll('.evidence textarea').forEach((ta, i) => ta.value = state.notes[i] || '');
+}
+function update() {
+  const phases = [...document.querySelectorAll('.phase')];
+  let total=0, done=0, pDone=0;
+  phases.forEach((phase, idx) => {
+    const boxes = allTasks(phase);
+    total += boxes.length;
+    done += boxes.filter(b => b.checked).length;
+    const complete = phaseComplete(phase);
+    const canOpen = idx === 0 || phaseComplete(phases[idx-1]);
+    phase.classList.toggle('locked', !canOpen);
+    phase.classList.toggle('open', canOpen);
+    phase.classList.toggle('complete', complete);
+    const status = phase.querySelector('.status-text');
+    if (complete) { status.textContent='KÉSZ'; }
+    else if (canOpen) { status.textContent='NYITVA'; }
+    else { status.textContent='ZÁRVA'; }
+    const btn = phase.querySelector('.unlock-btn');
+    btn.disabled = !complete || idx === phases.length-1;
+    if (complete) pDone++;
+  });
+  const pct = total ? Math.round(done/total*100) : 0;
+  document.getElementById('pct').textContent = pct + '%';
+  document.getElementById('bar').style.width = pct + '%';
+  document.getElementById('taskCount').textContent = done + ' / ' + total;
+  document.getElementById('phaseCount').textContent = pDone + ' / ' + phases.length;
+}
+document.querySelectorAll('.task input').forEach(box => box.addEventListener('change', e => {
+  const t=e.target.closest('.task'); const p=t.closest('.phase').dataset.phase;
+  state.tasks[p+':'+t.dataset.task]=e.target.checked; save();
+}));
+document.querySelectorAll('.evidence textarea').forEach((ta, idx) => ta.addEventListener('input', e => {
+  state.notes[idx]=e.target.value; save();
+}));
+document.querySelectorAll('.phase-header').forEach(h => h.addEventListener('click', () => {
+  const p=h.closest('.phase');
+  if (p.classList.contains('locked')) return;
+  const content=p.querySelector('.phase-content');
+  content.classList.toggle('hidden');
+}));
+document.querySelectorAll('.copy-btn').forEach(btn => btn.addEventListener('click', async () => {
+  await navigator.clipboard.writeText(btn.dataset.copy);
+  const old=btn.textContent; btn.textContent='Másolva ✓'; setTimeout(()=>btn.textContent=old,1000);
+}));
+document.querySelectorAll('.unlock-btn').forEach((btn, idx) => btn.addEventListener('click', () => {
+  const phases=[...document.querySelectorAll('.phase')];
+  const next=phases[idx+1];
+  if (!next) return;
+  next.classList.remove('locked'); next.classList.add('open');
+  next.scrollIntoView({behavior:'smooth', block:'start'});
+  update();
+}));
+document.getElementById('resetBtn').addEventListener('click', () => {
+  if (!confirm('Biztosan törlöd az összes checklist állapotot?')) return;
+  localStorage.removeItem(KEY); location.reload();
+});
+document.getElementById('exportBtn').addEventListener('click', () => {
+  const blob = new Blob([JSON.stringify(state,null,2)], {type:'application/json'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='ai-platform-checklist-state.json'; a.click(); URL.revokeObjectURL(a.href);
+});
+document.getElementById('importFile').addEventListener('change', e => {
+  const f=e.target.files[0]; if(!f) return;
+  const r=new FileReader(); r.onload=()=>{ try { localStorage.setItem(KEY,r.result); location.reload(); } catch(e) { alert('Hibás state fájl.'); } }; r.readAsText(f);
+});
+document.getElementById('search').addEventListener('input', e => {
+  const q=e.target.value.toLowerCase().trim();
+  document.querySelectorAll('.phase').forEach(p => {
+    const hit=!q || p.innerText.toLowerCase().includes(q);
+    p.classList.toggle('hidden', !hit);
+  });
+});
+hydrate(); update();
+</script>
+</body>
+</html>
